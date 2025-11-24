@@ -17,7 +17,7 @@ export default function Header() {
                 <img
                     src="/logo.svg"
                     alt="logo"
-                    className="w-12 h-12 object-contain"
+                    className="w-10 h-10 object-contain"
                 />
                 <h2 className="font-bold text-lg hover:scale-105 transition-all">Itinera</h2>
             </div>
@@ -27,7 +27,7 @@ export default function Header() {
                 <ul className="flex gap-6 items-center">
                     {menuOptions.map((menu) => (
                         <li key={menu.path}>
-                            <Link href={menu.path} className="font-medium hover:underline">
+                            <Link href={menu.path} className="font-medium transition-all hover:underline hover:text-primary hover: scale-105">
                                 {menu.name}
                             </Link>
                         </li>

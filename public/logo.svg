@@ -1,52 +1,25 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 140" role="img" aria-labelledby="title desc" width="520" height="140">
-  <title id="title">Itinera Logo</title>
-  <desc id="desc">Compass-marker icon with text Itinera, AI Trip Planner.</desc>
-
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
   <defs>
     <linearGradient id="g1" x1="0" x2="1" y1="0" y2="1">
       <stop offset="0" stop-color="#4F46E5"/>
       <stop offset="1" stop-color="#06B6D4"/>
     </linearGradient>
-
-    <filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="6" result="b"/>
-      <feOffset dy="4" in="b" result="o"/>
-      <feMerge>
-        <feMergeNode in="o"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
   </defs>
 
-  <!-- Icon -->
-  <g transform="translate(24,20)">
-    <path d="M28 2
-             C42 2 56 16 56 32
-             C56 52 28 86 28 86
-             C28 86 0 52 0 32
-             C0 16 14 2 28 2Z"
-          fill="url(#g1)" filter="url(#softShadow)"/>
+  <!-- Map Pin Shape -->
+  <path d="M60 5
+           C78 5 95 22 95 40
+           C95 67 60 110 60 110
+           C60 110 25 67 25 40
+           C25 22 42 5 60 5Z"
+        fill="url(#g1)"/>
 
-    <circle cx="28" cy="30" r="10" fill="white" opacity="0.95"/>
+  <!-- Inner Circle -->
+  <circle cx="60" cy="40" r="14" fill="white" opacity="0.95"/>
 
-    <g transform="translate(28,30) rotate(-22)">
-      <path d="M0 -1 L10 -26 L0 -16 L-10 -26 Z" fill="#0F172A" opacity="0.9"/>
-      <path d="M0 1 L-10 26 L0 16 L10 26 Z" fill="#FFFFFF" opacity="0.9"/>
-    </g>
-
-    <circle cx="28" cy="30" r="18" fill="none" stroke="#FFFFFF" stroke-opacity="0.15" stroke-width="2"/>
-  </g>
-
-  <!-- Wordmark -->
-  <g transform="translate(120,80)">
-    <text x="0" y="0" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto"
-          font-weight="700" font-size="48" fill="#0F172A" letter-spacing="-0.6">
-      Itinera
-    </text>
-
-    <text x="0" y="28" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto"
-          font-weight="500" font-size="18" fill="#475569" opacity="0.9">
-      AI Trip Planner
-    </text>
+  <!-- Airplane (simple silhouette) -->
+  <g transform="translate(60,40) rotate(-20)">
+    <path d="M0 -22 L2 -6 L18 0 L18 4 L2 2 L0 20 L-2 20 L-1 2 L-18 4 L-18 0 L-1 -6 L-2 -22 Z"
+          fill="#0F172A" />
   </g>
 </svg>
