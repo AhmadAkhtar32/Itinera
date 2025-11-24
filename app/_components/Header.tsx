@@ -4,9 +4,9 @@ function Header() {
     return (
         <div>
             {/* LOGO */}
-            <div>
+            <div className='flex gap-2 items-center'>
                 <img src="/logo.svg" alt="logo" style={{ width: 50, height: 50 }} />
-                <h2>Itinera</h2>
+                <h2 className='font-bold text-2xl'>Itinera</h2>
             </div>
 
 
