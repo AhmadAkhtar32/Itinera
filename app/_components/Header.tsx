@@ -2,7 +2,13 @@ import React from 'react'
 
 function Header() {
   return (
-    <div>Header</div>
+    <div>
+        {/* LOGO */}
+
+        {/* Menu Options */}
+
+        {/* Get Started button  */}
+    </div>
   )
 }
 
