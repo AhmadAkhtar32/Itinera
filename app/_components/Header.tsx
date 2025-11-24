@@ -1,6 +1,7 @@
 // app/components/Header.tsx
 import React from "react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 const menuOptions = [
     { name: "Home", path: "/" },
@@ -12,13 +13,13 @@ export default function Header() {
     return (
         <header className="flex items-center justify-between px-6 py-4">
             {/* LOGO */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-6">
                 <img
                     src="/logo.svg"
                     alt="logo"
-                    style={{ width: 50, height: 50 }}
+                    className="w-12 h-12 object-contain"
                 />
-                <h2 className="font-bold text-2xl">Itinera</h2>
+                <h2 className="font-bold text-lg hover:scale-105 transition-all">Itinera</h2>
             </div>
 
             {/* Menu Options */}
@@ -26,7 +27,6 @@ export default function Header() {
                 <ul className="flex gap-6 items-center">
                     {menuOptions.map((menu) => (
                         <li key={menu.path}>
-                            {/* next/link handles client navigation */}
                             <Link href={menu.path} className="font-medium hover:underline">
                                 {menu.name}
                             </Link>
@@ -37,9 +37,9 @@ export default function Header() {
 
             {/* Get Started button placeholder */}
             <div>
-                <button className="bg-blue-600 text-white px-4 py-2 rounded-md">
+                <Button>
                     Get Started
-                </button>
+                </Button>
             </div>
         </header>
     );
