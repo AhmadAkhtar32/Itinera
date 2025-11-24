@@ -1,4 +1,6 @@
+import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
+import { Icon, Send } from 'lucide-react'
 import React from 'react'
 
 function Hero() {
@@ -12,8 +14,11 @@ function Hero() {
 
             {/* Input Box  */}
             <div>
-                <div className='border rounded-2xl p-4 shadow'>
+                <div className='border rounded-2xl p-4 shadow relative'>
                     <Textarea placeholder="Let's Plan A Trip Together 😊" className='w-180 h-28 bg-transparent border-none focus-visible:ring-0 shadow-none resize-none' />
+                    <Button size={'icon'} className='absolute bottom-6 right-6'>
+                        <Send className='h-4 w-4' />
+                    </Button>
                 </div>
             </div>
 
