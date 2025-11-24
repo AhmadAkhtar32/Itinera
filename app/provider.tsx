@@ -1,9 +1,13 @@
 import React from 'react'
 
-function provider() {
-  return (
-    <div>provider</div>
-  )
+function Provider({
+    children,
+}: Readonly<{
+    children: React.ReactNode;
+}>) {
+    return (
+        <div>{children}</div>
+    )
 }
 
-export default provider
+export default Provider
