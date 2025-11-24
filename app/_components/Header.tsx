@@ -1,5 +1,16 @@
 import React from 'react'
 
+const menuOptions = [
+    {
+        name: 'Home',
+        path: '/'
+    },
+    {
+        name: 'Pricing',
+        path: '/'
+    }
+]
+
 function Header() {
     return (
         <div>
