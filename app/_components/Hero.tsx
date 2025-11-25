@@ -8,7 +8,7 @@ function Hero() {
         <div className="mt-24 flex flex-col items-center justify-center gap-10">
             {/* Content  */}
             <div className='max-w-3xl w-full text-center space-y-6'>
-                <h1 className='text-xl md:text-5xl font-bold'>Hey! <span className='text-primary'>Itinera</span> at your service — plan smarter-travel better✈️</h1>
+                <h1 className='text-xl md:text-5xl font-bold'>Hey! <span className='text-primary'>Itinera</span> at your service  plan smarter-travel better<span className='text-4xl'>✈️</span></h1>
                 <p className='text-lg'>Tell me what you need — I’ll plan the flights, hotels, and everything else in seconds.</p>
             </div>
 
@@ -23,6 +23,9 @@ function Hero() {
             </div>
 
             {/* Suggestion List  */}
+            <div>
+
+            </div>
 
             {/* Video section  */}
         </div>
