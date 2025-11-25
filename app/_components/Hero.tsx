@@ -55,9 +55,9 @@ function Hero() {
             <h2 className='my-2 mt-5 flex gap-2'>Not Sure Where To Start? <strong>See how It Works</strong> ⬇️</h2>
 
             {/* Video section  */}
-            <div className='w-180 h-28'>
+            <div className='w-full '>
                 <HeroVideoDialog
-                    className="block dark:hidden"
+                    className="block dark:hidden "
                     animationStyle="from-center"
                     videoSrc="https://www.example.com/dummy-video"
                     thumbnailSrc="https://images.pexels.com/photos/346885/pexels-photo-346885.jpeg"
