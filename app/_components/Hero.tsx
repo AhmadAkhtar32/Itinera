@@ -1,7 +1,27 @@
 import { Button } from '@/components/ui/button'
+import { HeroVideoDialog } from '@/components/ui/hero-video-dialog'
 import { Textarea } from '@/components/ui/textarea'
-import { Icon, Send } from 'lucide-react'
+import { ArrowDown, Globe2, Icon, Landmark, Plane, Send } from 'lucide-react'
 import React from 'react'
+
+const suggestions = [
+    {
+        title: 'Create New Trip',
+        icon: <Globe2 className='text-blue-400 h-5 w-5' />
+    },
+    {
+        title: 'Inspire Me Where To Go',
+        icon: <Plane className='text-green-400 h-5 w-5' />
+    },
+    {
+        title: 'Discover Hidden Gems',
+        icon: <Landmark className='text-orange-400 h-5 w-5' />
+    },
+    {
+        title: 'Adventure Destination',
+        icon: <Globe2 className='text-yellow-400 h-5 w-5' />
+    }
+]
 
 function Hero() {
     return (
@@ -23,11 +43,28 @@ function Hero() {
             </div>
 
             {/* Suggestion List  */}
-            <div>
-
+            <div className='flex gap-5'>
+                {suggestions.map((suggestions, index) => (
+                    <div key={index} className='flex items-center gap-2 border rounded-full p-2 cursor-pointer hover:bg-primary hover:text-white'>
+                        {suggestions.icon}
+                        <h2>{suggestions.title}</h2>
+                    </div>
+                ))}
             </div>
 
+            <h2 className='my-2 mt-5 flex gap-2'>Not Sure Where To Start? <strong>See how It Works</strong> ⬇️</h2>
+
             {/* Video section  */}
+            <div className='w-180 h-28'>
+                <HeroVideoDialog
+                    className="block dark:hidden"
+                    animationStyle="from-center"
+                    videoSrc="https://www.example.com/dummy-video"
+                    thumbnailSrc="https://images.pexels.com/photos/346885/pexels-photo-346885.jpeg"
+                    thumbnailAlt="Dummy Video Thumbnail"
+                />
+            </div>
+
         </div>
     )
 }
