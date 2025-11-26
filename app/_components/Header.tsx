@@ -38,7 +38,7 @@ export default function Header() {
 
             {/* Get Started button placeholder */}
             <div>
-                <SignInButton>
+                <SignInButton mode="modal">
                     <Button>
                         Get Started
                     </Button>
