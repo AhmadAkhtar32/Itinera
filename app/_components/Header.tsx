@@ -1,8 +1,9 @@
 // app/components/Header.tsx
+"use client"
 import React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { SignInButton } from "@clerk/nextjs";
+import { SignInButton, useUser } from "@clerk/nextjs";
 
 const menuOptions = [
     { name: "Home", path: "/" },
@@ -11,6 +12,9 @@ const menuOptions = [
 ];
 
 export default function Header() {
+
+    const { user } = useUser();
+
     return (
         <header className="flex items-center justify-between px-6 py-4">
             {/* LOGO */}
@@ -38,11 +42,18 @@ export default function Header() {
 
             {/* Get Started button placeholder */}
             <div>
-                <SignInButton mode="modal">
-                    <Button>
-                        Get Started
-                    </Button>
-                </SignInButton>
+                {!user ?
+                    <SignInButton mode="modal">
+                        <Button>
+                            Get Started
+                        </Button>
+                    </SignInButton> :
+                    <Link href={'/create-trip'}>
+                        <Button>
+                            Create New Trip
+                        </Button>
+                    </Link>
+                }
             </div>
         </header>
     );
