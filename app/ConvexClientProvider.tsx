@@ -1,3 +1,4 @@
+"use client"
 import { ConvexProvider, ConvexReactClient } from 'convex/react';
 import React, { ReactNode } from 'react'
 import Provider from './provider';
