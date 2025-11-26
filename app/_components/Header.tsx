@@ -2,6 +2,7 @@
 import React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { SignInButton } from "@clerk/nextjs";
 
 const menuOptions = [
     { name: "Home", path: "/" },
@@ -37,9 +38,11 @@ export default function Header() {
 
             {/* Get Started button placeholder */}
             <div>
-                <Button>
-                    Get Started
-                </Button>
+                <SignInButton>
+                    <Button>
+                        Get Started
+                    </Button>
+                </SignInButton>
             </div>
         </header>
     );
