@@ -7,7 +7,7 @@ import { ArrowDown, Globe2, Icon, Landmark, Plane, Send } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 
-const suggestions = [
+export const suggestions = [
     {
         title: 'Create New Trip',
         icon: <Globe2 className='text-blue-400 h-5 w-5' />
