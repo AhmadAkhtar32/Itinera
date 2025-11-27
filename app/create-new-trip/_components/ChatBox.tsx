@@ -53,14 +53,16 @@ function ChatBox() {
                         </div> :
                         <div className='flex justify-start mt-2' key={index}>
                             <div className='max-w-lg bg-gray-200 text-black px-4 py-2 rounded-lg'>
-                                {loading ? <Loader className='animate-spin' /> : msg.content}
+                                {msg.content}
                             </div>
                         </div>
-
-
                 )
-
                 )}
+                {loading && <div className='flex justify-start mt-2' >
+                    <div className='max-w-lg bg-gray-200 text-black px-4 py-2 rounded-lg'>
+                        <Loader className='animate-spin' />
+                    </div>
+                </div>}
 
             </section>
             {/* User Input */}
