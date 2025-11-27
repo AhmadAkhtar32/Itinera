@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import OpenAI from 'openai';
 
 
@@ -32,19 +32,23 @@ ui:'budget/groupSize/TripDuration/Final)'
 export async function POST(req: NextRequest) {
     const { messages } = await req.json();
 
-    const completion = await openai.chat.completions.create({
-        model: 'openai/gpt-4.1-mini',
-        messages: [
-            {
-                role: 'system',
-                content: 'PROMPT'
-            },
-            {
-                role: 'user',
-                content: 'What is the meaning of life?',
-            },
-        ],
-    });
-    console.log(completion.choices[0].message);
+    try {
+        const completion = await openai.chat.completions.create({
+            model: 'openai/gpt-4.1-mini',
+            messages: [
+                {
+                    role: 'system',
+                    content: PROMPT
+                },
+                ...messages
+            ],
+        });
+        console.log(completion.choices[0].message);
+        const message = completion.choices[0].message;
+        return NextResponse.json(JSON.parse(message.content ?? ''));
+    }
+    catch (e) {
+        return NextResponse.json(e);
+    }
 
 }
