@@ -1,9 +1,5 @@
-import React from 'react'
+import { NextRequest } from "next/server";
 
-function route() {
-  return (
-    <div>route</div>
-  )
+export async function POST(req: NextRequest) {
+    const { messages } = await req.json();
 }
-
-export default route
