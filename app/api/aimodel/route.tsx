@@ -9,4 +9,16 @@ export const openai = new OpenAI({
 
 export async function POST(req: NextRequest) {
     const { messages } = await req.json();
+
+    const completion = await openai.chat.completions.create({
+        model: 'openai/gpt-4.1-mini',
+        messages: [
+            {
+                role: 'user',
+                content: 'What is the meaning of life?',
+            },
+        ],
+    });
+    console.log(completion.choices[0].message);
+
 }
