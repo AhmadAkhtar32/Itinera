@@ -36,10 +36,20 @@ function ChatBox() {
 
         setMessages((prev: Message[]) => [...prev, {
             role: 'assistant',
-            content: result?.data?.resp
+            content: result?.data?.resp,
+            ui: result?.data?.ui
         }]);
         console.log(result.data);
         setLoading(false);
+    }
+
+    const RenderGenerativeUi = (ui: string) => {
+        if (ui == 'budget') {
+            //Budget Ui Component
+        } else if (ui == 'groupSize') {
+            // Group Size Ui Component
+        }
+        return null
     }
 
     return (
@@ -59,6 +69,7 @@ function ChatBox() {
                         <div className='flex justify-start mt-2' key={index}>
                             <div className='max-w-lg bg-gray-200 text-black px-4 py-2 rounded-lg'>
                                 {msg.content}
+                                {RenderGenerativeUi(msg.ui ?? '')}
                             </div>
                         </div>
                 )
