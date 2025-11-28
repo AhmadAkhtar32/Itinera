@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import axios from 'axios'
 import { Loader, Send } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import EmptyBoxState from './EmptyBoxState'
 import GroupSizeUi from './GroupSizeUi'
 import BudgetUi from './BudgetUi'
@@ -22,6 +22,7 @@ function ChatBox() {
     const [messages, setMessages] = useState<Message[]>([]);
     const [userInput, setUserInput] = useState<string>();
     const [loading, setLoading] = useState(false);
+    const [isFinal, setIsFinal] = useState(false);
 
     const onSend = async () => {
         if (!userInput?.trim()) return;
@@ -36,7 +37,8 @@ function ChatBox() {
         setMessages((prev: Message[]) => [...prev, newMsg]);
 
         const result = await axios.post('/api/aimodel', {
-            messages: [...messages, newMsg]
+            messages: [...messages, newMsg],
+            isFinal: isFinal
         });
 
         setMessages((prev: Message[]) => [...prev, {
@@ -64,6 +66,15 @@ function ChatBox() {
         }
         return null
     }
+
+    useEffect(() => {
+        const lastMsg = messages[messages.length - 1];
+        if (lastMsg?.ui == 'final') {
+            setIsFinal(true);
+            onSend();
+        }
+    }, [messages])
+
 
     return (
         <div className='h-[80vh] flex flex-col'>
