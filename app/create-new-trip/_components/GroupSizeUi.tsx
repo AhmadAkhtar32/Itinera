@@ -1,4 +1,3 @@
-import { div } from 'motion/react-client'
 import React from 'react'
 
 export const SelectTravelesList = [
@@ -33,11 +32,13 @@ export const SelectTravelesList = [
     },
 ]
 
-function GroupSizeUi() {
+function GroupSizeUi({ onSelectedOption }: any) {
     return (
-        <div>
+        <div className='grid grid-cols-2 md:grid-cols-4 gap-2 items-center mt-1'>
             {SelectTravelesList.map((item, index) => (
-                <div key={index} className='p-3 border rounded-2xl bg-white hover:border-primary cursor-pointer'>
+                <div key={index} className='p-3 border rounded-2xl bg-white hover:border-primary cursor-pointer'
+                    onClick={() => onSelectedOption(item.title + ":" + item.people)}
+                >
                     <h2>{item.icon}</h2>
                     <h2>{item.title}</h2>
                 </div>

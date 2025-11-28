@@ -49,7 +49,7 @@ function ChatBox() {
             //Budget Ui Component
         } else if (ui == 'groupSize') {
             // Group Size Ui Component
-            <GroupSizeUi />
+            <GroupSizeUi onSelectedOption={(v: string) => { setUserInput(v); onSend() }} />
         }
         return null
     }
