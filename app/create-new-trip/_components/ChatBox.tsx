@@ -7,6 +7,8 @@ import React, { useState } from 'react'
 import EmptyBoxState from './EmptyBoxState'
 import GroupSizeUi from './GroupSizeUi'
 import BudgetUi from './BudgetUi'
+import SelectDays from './SelectDaysUi'
+
 
 type Message = {
     role: string,
@@ -52,6 +54,12 @@ function ChatBox() {
         } else if (ui == 'groupSize') {
             // Group Size Ui Component
             return <GroupSizeUi onSelectedOption={(v: string) => { setUserInput(v); onSend() }} />
+        } else if (ui == 'tripDuration') {
+            // Group Size Ui Component
+            return <SelectDays onSelectedOption={(v: string) => { setUserInput(v); onSend() }} />
+        } else if (ui == 'final') {
+            // Group Size Ui Component
+            return <GroupSizeUi viewTrip={() => console.log()} />
         }
         return null
     }

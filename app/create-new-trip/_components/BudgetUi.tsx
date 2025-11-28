@@ -28,7 +28,7 @@ export const SelectBudgetOptions = [
 function BudgetUi({ onSelectedOption }: any) {
     return (
         <div>
-            <div className='grid grid-cols-2 md:grid-cols-4 gap-2 items-center mt-1'>
+            <div className='grid grid-cols-3 md:grid-cols-3 gap-2 items-center mt-1'>
                 {SelectBudgetOptions.map((item, index) => (
                     <div key={index} className='p-3 border rounded-2xl bg-white hover:border-primary cursor-pointer flex flex-col items-center text-center'
                         onClick={() => onSelectedOption(item.title + ":" + item.desc)}
