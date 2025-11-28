@@ -9,6 +9,7 @@ import EmptyBoxState from './EmptyBoxState'
 type Message = {
     role: string,
     content: string
+    ui?: string,
 }
 
 function ChatBox() {
