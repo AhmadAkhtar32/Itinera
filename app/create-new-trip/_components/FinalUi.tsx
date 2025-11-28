@@ -4,7 +4,7 @@ import React from 'react'
 
 function FinalUi({ viewTrip }: any) {
     return (
-        <div>
+        <div className='flex flex-col items-center justify-center mt-6 p-6 bg-white rounded-full'>
             <Globe2 className='text-primary text-4xl animate-bounce' />
             <h2 className='mt-3 text-lg font-semibold text-primary'>
                 ✈️ Planning Your Dream trip ...

@@ -8,6 +8,7 @@ import EmptyBoxState from './EmptyBoxState'
 import GroupSizeUi from './GroupSizeUi'
 import BudgetUi from './BudgetUi'
 import SelectDays from './SelectDaysUi'
+import FinalUi from './FinalUi'
 
 
 type Message = {
@@ -59,7 +60,7 @@ function ChatBox() {
             return <SelectDays onSelectedOption={(v: string) => { setUserInput(v); onSend() }} />
         } else if (ui == 'final') {
             // Group Size Ui Component
-            return <GroupSizeUi viewTrip={() => console.log()} />
+            return <FinalUi viewTrip={() => console.log()} />
         }
         return null
     }
