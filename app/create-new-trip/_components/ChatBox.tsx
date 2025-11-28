@@ -17,15 +17,28 @@ type Message = {
     ui?: string,
 }
 
+type TripInfo = {
+    budget: string,
+    destination: string,
+    duration: string,
+    group_size: string,
+    origin: string,
+    hotels: any,
+    itinerary: any
+
+}
+
+
 function ChatBox() {
 
     const [messages, setMessages] = useState<Message[]>([]);
     const [userInput, setUserInput] = useState<string>();
     const [loading, setLoading] = useState(false);
     const [isFinal, setIsFinal] = useState(false);
+    const [tripDetail, setTripDetail] = useState<TripInfo>();
 
     const onSend = async () => {
-        if (!userInput?.trim()) return;
+        // if (!userInput?.trim()) return;
 
         setLoading(true);
         setUserInput('');
@@ -41,12 +54,16 @@ function ChatBox() {
             isFinal: isFinal
         });
 
-        setMessages((prev: Message[]) => [...prev, {
+        console.log("TRIP", result.data);
+
+        !isFinal && setMessages((prev: Message[]) => [...prev, {
             role: 'assistant',
             content: result?.data?.resp,
             ui: result?.data?.ui
         }]);
-        console.log(result.data);
+        if (isFinal) {
+            setTripDetail(result?.data?.trip_plan)
+        }
         setLoading(false);
     }
 
@@ -62,7 +79,9 @@ function ChatBox() {
             return <SelectDays onSelectedOption={(v: string) => { setUserInput(v); onSend() }} />
         } else if (ui == 'final') {
             // Group Size Ui Component
-            return <FinalUi viewTrip={() => console.log()} />
+            return <FinalUi viewTrip={() => console.log()}
+                disable={!tripDetail}
+            />
         }
         return null
     }
@@ -71,9 +90,16 @@ function ChatBox() {
         const lastMsg = messages[messages.length - 1];
         if (lastMsg?.ui == 'final') {
             setIsFinal(true);
-            onSend();
+            setUserInput('Ok, Great !');
+            // onSend();
         }
     }, [messages])
+
+    useEffect(() => {
+        if (isFinal && userInput) {
+            onSend();
+        }
+    }, [isFinal]);
 
 
     return (
