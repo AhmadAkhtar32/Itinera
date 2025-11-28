@@ -44,7 +44,7 @@ function ChatBox() {
         setUserInput('');
         const newMsg: Message = {
             role: 'user',
-            content: userInput
+            content: userInput ?? ''
         }
 
         setMessages((prev: Message[]) => [...prev, newMsg]);
