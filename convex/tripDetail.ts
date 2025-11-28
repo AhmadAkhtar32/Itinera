@@ -4,8 +4,10 @@ import { mutation } from "./_generated/server";
 export const CreateTripDetail = mutation({
     args: {
         tripId: v.string(),
-        // If using Clerk, change this to v.string()
-        uid: v.id('UserTable'),
+
+        // ✅ CORRECT: Use v.string() for Clerk User IDs
+        uid: v.string(),
+
         tripDetail: v.any(),
     },
     handler: async (ctx, args) => {

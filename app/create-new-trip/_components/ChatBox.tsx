@@ -12,6 +12,7 @@ import FinalUi from './FinalUi'
 import { useMutation } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { useUserDetail } from '@/app/provider'
+import { v4 as uuidv4 } from 'uuid'
 
 
 type Message = {
@@ -68,9 +69,10 @@ function ChatBox() {
         }]);
         if (isFinal) {
             setTripDetail(result?.data?.trip_plan);
+            const tripId = uuidv4();
             await SaveTripDetail({
                 tripDetail: result?.data?.trip_plan,
-                tripId: '',
+                tripId: tripId,
                 uid: userDetail?._id
 
             })
