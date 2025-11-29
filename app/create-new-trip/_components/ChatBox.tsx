@@ -44,7 +44,7 @@ export type Hotel = {
     description: string;
 };
 
-type Activity = {
+export type Activity = {
     place_name: string;
     place_details: string;
     place_image_url: string;
