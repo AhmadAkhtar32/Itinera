@@ -1,5 +1,7 @@
 "use client";
+import { Button } from '@/components/ui/button';
 import { Timeline } from '@/components/ui/timeline';
+import { Clock, ExternalLink, Star, Ticket, Wallet } from 'lucide-react';
 import React from 'react'
 
 
@@ -171,43 +173,59 @@ function Itinerary() {
         {
             title: "Recommended Hotels",
             content: (
-                <div>
-                    <p className="mb-8 text-xs font-normal text-neutral-800 md:text-sm dark:text-neutral-200">
-                        Built and launched Aceternity UI and Aceternity UI Pro from scratch
-                    </p>
-                    <div className="grid grid-cols-2 gap-4">
-                        <img
-                            src="https://assets.aceternity.com/templates/startup-1.webp"
-                            alt="startup template"
-                            width={500}
-                            height={500}
-                            className="h-20 w-full rounded-lg object-cover shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset] md:h-44 lg:h-60"
-                        />
-                        <img
-                            src="https://assets.aceternity.com/templates/startup-2.webp"
-                            alt="startup template"
-                            width={500}
-                            height={500}
-                            className="h-20 w-full rounded-lg object-cover shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset] md:h-44 lg:h-60"
-                        />
-                        <img
-                            src="https://assets.aceternity.com/templates/startup-3.webp"
-                            alt="startup template"
-                            width={500}
-                            height={500}
-                            className="h-20 w-full rounded-lg object-cover shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset] md:h-44 lg:h-60"
-                        />
-                        <img
-                            src="https://assets.aceternity.com/templates/startup-4.webp"
-                            alt="startup template"
-                            width={500}
-                            height={500}
-                            className="h-20 w-full rounded-lg object-cover shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset] md:h-44 lg:h-60"
-                        />
-                    </div>
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                    {TRIP_DATA?.hotels.map((hotel, index) =>
+                    (
+                        <div key={index} className='flex flex-col gap-1'>
+                            <img src={'/assets/images/placeholder.png'} alt='place-image' width={400} height={200}
+                                className='rounded-xl shadow object-cover mb-2' />
+                            <h2 className='font-semibold text-lg'>{hotel?.hotel_name}</h2>
+                            <h2 className='text-gray-500 '>{hotel.hotel_address}</h2>
+                            <div className='flex justify-between items-center'>
+                                <p className='flex gap-2 text-green-600'> <Wallet /> {hotel.price_per_night} </p>
+                                <p className='flex gap-2 text-yellow-500'> <Star /> {hotel.rating} </p>
+                            </div>
+                            <Button
+                                variant="outline"
+                                className="border-primary text-primary hover:bg-primary hover:text-white mt-1"
+                            >
+                                View
+                            </Button>
+                            {/* <p className='line-clamp-2 text-gray-500'>{hotel?.description}</p> */}
+                        </div>
+                    ))}
                 </div>
             ),
         },
+        ...TRIP_DATA?.itinerary.map((dayData) => ({
+            title: `Day ${dayData?.day}`,
+            content: (
+                <div>
+                    <p>Best Time :{dayData?.best_time_to_visit_day}</p>
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                        {dayData?.activities.map((activity, index) => (
+                            <div key={index}>
+                                <img src={'/assets/images/placeholder.png'} width={400} height={200} alt={activity.place_name}
+                                    className='object-cover rounded-xl'
+                                />
+                                <h2 className='font-semibold text-lg'>{activity?.place_name}</h2>
+                                <p className='text-gray-500 line-clamp-2'>{activity?.place_details}</p>
+                                <h2 className='flex gap-2 text-blue-500 line-clamp-1'>
+                                    <Ticket /> {activity?.ticket_pricing}
+                                </h2>
+                                <p className='flex gap-2 text-orange-400 line-clamp-1'>
+                                    <Clock /> {activity?.best_time_to_visit}
+                                </p>
+                                <Button size={'sm'} variant="outline"
+                                    className="border-primary text-primary hover:bg-primary hover:text-white mt-1">
+                                    View 🔗<ExternalLink />
+                                </Button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )
+        }))
     ];
     return (
         <div className="relative w-full h-[80vh] overflow-auto">
