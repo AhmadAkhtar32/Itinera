@@ -21,7 +21,7 @@ type Message = {
     ui?: string,
 }
 
-type TripInfo = {
+export type TripInfo = {
     budget: string,
     destination: string,
     duration: string,
@@ -29,7 +29,6 @@ type TripInfo = {
     origin: string,
     hotels: any,
     itinerary: any
-
 }
 
 
