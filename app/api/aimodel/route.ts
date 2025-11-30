@@ -95,8 +95,6 @@ Hotel address, Price, hotel image url, geo coordinates, rating, descriptions and
     }
 }`
 
-
-
 export async function POST(req: NextRequest) {
     const { messages, isFinal } = await req.json();
     try {

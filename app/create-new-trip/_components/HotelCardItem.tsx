@@ -1,14 +1,28 @@
-import React from 'react'
+"use client"
+import React, { useEffect } from 'react'
 import NextLink from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Hotel } from './ChatBox';
 import { Star, Wallet } from 'lucide-react';
+import axios from 'axios';
 
 type Props = {
     hotel: Hotel
 }
 
 function HotelCardItem({ hotel }: Props) {
+
+    useEffect(() => {
+        hotel && GetGooglePlaceDetail();
+    }, [hotel])
+
+    const GetGooglePlaceDetail = async () => {
+        const result = await axios.post('/api/google-place-detail', {
+            placeName: hotel?.hotel_name
+        });
+        console.log(result?.data);
+    }
+
     return (
         <div className='flex flex-col gap-1 border p-3 rounded-xl shadow-sm'>
             <div className='relative h-[180px] w-full'>
