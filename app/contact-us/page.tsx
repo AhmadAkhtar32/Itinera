@@ -97,8 +97,8 @@ export default function ContactUs() {
                             </div>
                             <div>
                                 <h3 className="text-lg font-medium text-slate-900">Call Support</h3>
-                                <p className="text-slate-600">0325-7369508</p>
-                                <p className="text-slate-600">0307-1500636</p>
+                                <p className="text-slate-600">+92-3257369508</p>
+                                <p className="text-slate-600">+92-3071500636</p>
                                 <p className="text-sm text-slate-500">Mon-Fri from 8am to 5pm</p>
                             </div>
                         </div>
