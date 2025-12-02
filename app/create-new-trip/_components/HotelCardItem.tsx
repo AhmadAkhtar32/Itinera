@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import NextLink from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Hotel } from './ChatBox';
@@ -12,6 +12,7 @@ type Props = {
 
 function HotelCardItem({ hotel }: Props) {
 
+    const [photoUrl, setPhotoUrl] = useState<string>();
     useEffect(() => {
         hotel && GetGooglePlaceDetail();
     }, [hotel])
@@ -20,14 +21,17 @@ function HotelCardItem({ hotel }: Props) {
         const result = await axios.post('/api/google-place-detail', {
             placeName: hotel?.hotel_name
         });
-        console.log(result?.data);
+        if (result?.data?.e) {
+            return;
+        }
+        setPhotoUrl(result?.data);
     }
 
     return (
         <div className='flex flex-col gap-1 border p-3 rounded-xl shadow-sm'>
             <div className='relative h-[180px] w-full'>
                 <img
-                    src={'/assets/images/placeholder.png'}
+                    src={photoUrl ? photoUrl : '/assets/images/placeholder.png'}
                     alt='place-image'
                     className='rounded-xl w-full h-full object-cover'
                 />
