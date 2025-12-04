@@ -1,53 +1,60 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend1 = new Resend(process.env.RESEND_KEY_1);
+const resend2 = new Resend(process.env.RESEND_KEY_2);
 
 export async function POST(req: NextRequest) {
     try {
-        const { name, email, message } = await req.json();
+        const body = await req.json();
+        const { name, email, subject, message } = body;
 
-        // Validate input
         if (!name || !email || !message) {
-            return NextResponse.json(
-                { error: 'Missing required fields' },
-                { status: 400 }
-            );
+            return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
         }
 
-        // Send the email
-        const data = await resend.emails.send({
-            from: 'Itinera Contact Form <onboarding@resend.dev>', // Use this default until you verify your own domain
-            to: [
-                process.env.ADMIN_EMAIL_1 as string,
-                process.env.ADMIN_EMAIL_2 as string
-            ],
-            subject: `New Contact Message from ${name}`,
-            replyTo: email, // <--- CRITICAL: This makes "Reply" go to the user
-            text: `
-        Name: ${name}
-        Email: ${email}
-        
-        Message:
-        ${message}
-      `,
-            // You can also use React Email here for beautiful HTML templates if you want
+        const emailContent = {
+            from: 'Itinera Contact <onboarding@resend.dev>',
+            subject: subject || `New Contact Message from ${name}`,
+            replyTo: email,
             html: `
-        <h1>New Message from Itinera Website</h1>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <hr />
-        <p><strong>Message:</strong></p>
-        <p>${message}</p>
+        <div style="font-family: sans-serif; padding: 20px;">
+          <h2>New Message from Itinera</h2>
+          <p><strong>From:</strong> ${name} (<a href="mailto:${email}">${email}</a>)</p>
+          <hr />
+          <p>${message}</p>
+        </div>
       `
-        });
+        };
 
-        return NextResponse.json({ success: true, data });
+        // Send in parallel
+        const [response1, response2] = await Promise.all([
+            resend1.emails.send({
+                ...emailContent,
+                to: [process.env.ADMIN_EMAIL_1 as string],
+            }),
+            resend2.emails.send({
+                ...emailContent,
+                to: [process.env.ADMIN_EMAIL_2 as string],
+            })
+        ]);
+
+        // CRITICAL: Check if Resend returned an error
+        if (response1.error) {
+            console.error("Error sending to Admin 1:", response1.error);
+            return NextResponse.json({ error: `Admin 1 Failed: ${response1.error.message}` }, { status: 500 });
+        }
+        if (response2.error) {
+            console.error("Error sending to Admin 2:", response2.error);
+            return NextResponse.json({ error: `Admin 2 Failed: ${response2.error.message}` }, { status: 500 });
+        }
+
+        return NextResponse.json({ success: true });
 
     } catch (error) {
         console.error('Contact API Error:', error);
         return NextResponse.json(
-            { error: 'Failed to send message' },
+            { error: 'Internal Server Error' },
             { status: 500 }
         );
     }

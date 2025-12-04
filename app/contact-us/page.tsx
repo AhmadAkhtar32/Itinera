@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
+import axios from "axios" // Import Axios
 import { MapPin, Phone, Mail, Send, Loader2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -41,16 +42,23 @@ export default function ContactUs() {
         },
     })
 
-    // --- 3. Submit Handler ---
-    function onSubmit(values: z.infer<typeof formSchema>) {
+    // --- 3. Submit Handler (UPDATED WITH AXIOS) ---
+    async function onSubmit(values: z.infer<typeof formSchema>) {
         setIsSubmitting(true)
-        // Simulate API call
-        setTimeout(() => {
-            console.log("Form Submitted:", values)
-            setIsSubmitting(false)
-            form.reset()
+        try {
+            // Send data to our API route
+            await axios.post('/api/contact', values);
+
+            // Success Logic
             alert("Message sent successfully! We'll get back to you soon.")
-        }, 2000)
+            form.reset() // Clear the form
+
+        } catch (error) {
+            console.error("Submission Error:", error);
+            alert("Something went wrong. Please try again later.")
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
     return (
