@@ -3,15 +3,15 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import axios from 'axios'
 import { Loader, Send } from 'lucide-react'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import EmptyBoxState from './EmptyBoxState'
 import GroupSizeUi from './GroupSizeUi'
-import BudgetUi from './BudgetUi'
+import BudgetUi from './BudgetUi' // Ensure this component exists and matches the new numeric input logic
 import SelectDays from './SelectDaysUi'
 import FinalUi from './FinalUi'
 import { useMutation } from 'convex/react'
 import { api } from '@/convex/_generated/api'
-import { useUserDetail } from '@/app/provider'
+import { userTripDetail, useUserDetail } from '@/app/provider'
 import { v4 as uuidv4 } from 'uuid'
 
 
@@ -69,62 +69,97 @@ type Itinerary = {
 function ChatBox() {
 
     const [messages, setMessages] = useState<Message[]>([]);
-    const [userInput, setUserInput] = useState<string>();
+    const [userInput, setUserInput] = useState<string>('');
     const [loading, setLoading] = useState(false);
     const [isFinal, setIsFinal] = useState(false);
     const [tripDetail, setTripDetail] = useState<TripInfo>();
     const SaveTripDetail = useMutation(api.tripDetail.CreateTripDetail)
     const { userDetail, setUserDetail } = useUserDetail();
 
-    const onSend = async () => {
-        // if (!userInput?.trim()) return;
+    // Auto-scroll ref
+    const scrollRef = useRef<HTMLDivElement>(null);
+
+    //@ts-ignore
+    const { tripDetailInfo, setTripDetailInfo } = userTripDetail();
+
+    // Auto-scroll effect
+    useEffect(() => {
+        if (scrollRef.current) {
+            scrollRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [messages]);
+
+    // UPDATED: Now accepts an optional 'manualInput'
+    const onSend = async (manualInput?: string) => {
+
+        // Use manualInput if provided (from buttons), otherwise use state (from text box)
+        const msgContent = manualInput || userInput;
+
+        if (!msgContent?.trim()) return;
 
         setLoading(true);
-        setUserInput('');
+        setUserInput(''); // Clear input
+
         const newMsg: Message = {
             role: 'user',
-            content: userInput ?? ''
+            content: msgContent // Use the resolved content
         }
 
         setMessages((prev: Message[]) => [...prev, newMsg]);
 
-        const result = await axios.post('/api/aimodel', {
-            messages: [...messages, newMsg],
-            isFinal: isFinal
-        });
+        try {
+            const result = await axios.post('/api/aimodel', {
+                messages: [...messages, newMsg],
+                isFinal: isFinal
+            });
 
-        console.log("TRIP", result.data);
+            console.log("TRIP", result.data);
 
-        !isFinal && setMessages((prev: Message[]) => [...prev, {
-            role: 'assistant',
-            content: result?.data?.resp,
-            ui: result?.data?.ui
-        }]);
-        if (isFinal) {
-            setTripDetail(result?.data?.trip_plan);
-            const tripId = uuidv4();
-            await SaveTripDetail({
-                tripDetail: result?.data?.trip_plan,
-                tripId: tripId,
-                uid: userDetail?._id
+            !isFinal && setMessages((prev: Message[]) => [...prev, {
+                role: 'assistant',
+                content: result?.data?.resp,
+                ui: result?.data?.ui
+            }]);
 
-            })
+            if (isFinal) {
+                setTripDetail(result?.data?.trip_plan);
+                setTripDetailInfo(result?.data?.trip_plan)
+                const tripId = uuidv4();
+                await SaveTripDetail({
+                    tripDetail: result?.data?.trip_plan,
+                    tripId: tripId,
+                    uid: userDetail?._id
+                })
+            }
+        } catch (error) {
+            console.error("Error sending message:", error);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     }
 
+    // UPDATED: Passes 'v' directly to onSend(v)
     const RenderGenerativeUi = (ui: string) => {
         if (ui == 'budget') {
-            //Budget Ui Component
-            return <BudgetUi onSelectedOption={(v: string) => { setUserInput(v); onSend() }} />
+            // Budget Ui Component - NOW HANDLES NUMERIC INPUT
+            // Ensure BudgetUi passes the string value (e.g., "$500") to onSelectedOption
+            return <BudgetUi onSelectedOption={(v: string) => {
+                // We do NOT set userInput here to avoid double-state issues
+                // We just fire onSend directly with the value
+                onSend(v);
+            }} />
         } else if (ui == 'groupSize') {
             // Group Size Ui Component
-            return <GroupSizeUi onSelectedOption={(v: string) => { setUserInput(v); onSend() }} />
+            return <GroupSizeUi onSelectedOption={(v: string) => {
+                onSend(v);
+            }} />
         } else if (ui == 'tripDuration') {
-            // Group Size Ui Component
-            return <SelectDays onSelectedOption={(v: string) => { setUserInput(v); onSend() }} />
+            // Duration Ui Component
+            return <SelectDays onSelectedOption={(v: string) => {
+                onSend(v);
+            }} />
         } else if (ui == 'final') {
-            // Group Size Ui Component
+            // Final Ui Component
             return <FinalUi viewTrip={() => console.log()}
                 disable={!tripDetail}
             />
@@ -136,59 +171,84 @@ function ChatBox() {
         const lastMsg = messages[messages.length - 1];
         if (lastMsg?.ui == 'final') {
             setIsFinal(true);
+            // We set the input to "Ok, Great!" to trigger the final fetch automatically
             setUserInput('Ok, Great !');
-            // onSend();
         }
     }, [messages])
 
     useEffect(() => {
-        if (isFinal && userInput) {
+        // Trigger the final call only when isFinal is true AND the "Ok, Great!" text is staged
+        if (isFinal && userInput == 'Ok, Great !') {
             onSend();
         }
-    }, [isFinal]);
+    }, [isFinal, userInput]);
 
 
     return (
-        <div className='h-[80vh] flex flex-col'>
+        <div className='h-[80vh] flex flex-col border shadow rounded-2xl p-5'>
             {messages?.length == 0 &&
-                <EmptyBoxState onSelectOption={(v: string) => { setUserInput(v); onSend() }} />
+                <EmptyBoxState onSelectOption={(v: string) => { setUserInput(v); onSend(v) }} />
             }
             {/* Display Messages */}
             <section className='flex-1 overflow-y-auto p-4'>
                 {messages.map((msg: Message, index) => (
-                    msg.role == 'user' ?
-                        <div className='flex justify-end mt-2' key={index}>
-                            <div className='max-w-lg bg-primary text-white px-4 py-2 rounded-lg'>
-                                {msg.content}
+                    <div key={index}>
+                        {msg.role == 'user' ? (
+                            <div className='flex justify-end mt-2'>
+                                <div className='max-w-lg bg-primary text-white px-4 py-2 rounded-lg'>
+                                    {msg.content}
+                                </div>
                             </div>
-                        </div> :
-                        <div className='flex justify-start mt-2' key={index}>
-                            <div className='max-w-lg bg-gray-200 text-black px-4 py-2 rounded-lg'>
-                                {msg.content}
-                                {RenderGenerativeUi(msg.ui ?? '')}
+                        ) : (
+                            <div className='flex justify-start mt-2'>
+                                <div className='max-w-lg bg-gray-200 text-black px-4 py-2 rounded-lg'>
+                                    {msg.content}
+                                    {/* Generative UI renders INSIDE the assistant bubble */}
+                                    <div className="mt-2">
+                                        {RenderGenerativeUi(msg.ui ?? '')}
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                )
-                )}
-                {loading && <div className='flex justify-start mt-2' >
-                    <div className='max-w-lg bg-gray-200 text-black px-4 py-2 rounded-lg'>
-                        <Loader className='animate-spin' />
+                        )}
                     </div>
-                </div>}
+                ))}
 
+                {loading && (
+                    <div className='flex justify-start mt-2' >
+                        <div className='max-w-lg bg-gray-200 text-black px-4 py-2 rounded-lg flex items-center gap-2'>
+                            <Loader className='animate-spin h-4 w-4' />
+                            <span className='text-sm text-gray-500'>Itinera is thinking...</span>
+                        </div>
+                    </div>
+                )}
+                {/* Scroll Anchor */}
+                <div ref={scrollRef} />
             </section>
+
             {/* User Input */}
             <section>
                 <div className='border rounded-2xl p-4 shadow relative'>
-                    <Textarea placeholder="Let's Plan A Trip Together With Itinera 😊" className='w-180 h-28 bg-transparent border-none focus-visible:ring-0 shadow-none resize-none'
+                    <Textarea
+                        placeholder="Let's Plan A Trip Together With Itinera 😊"
+                        className='w-180 h-28 bg-transparent border-none focus-visible:ring-0 shadow-none resize-none'
                         onChange={(event) => setUserInput(event.target.value)}
                         value={userInput}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                onSend();
+                            }
+                        }}
                     />
-                    <Button size={'icon'} className='absolute bottom-6 right-6' onClick={() => onSend()}>
+                    <Button
+                        size={'icon'}
+                        className='absolute bottom-6 right-6'
+                        onClick={() => onSend()}
+                        disabled={loading || !userInput?.trim()}
+                    >
                         <Send className='h-4 w-4' />
                     </Button>
                 </div>
-
             </section>
         </div>
     )

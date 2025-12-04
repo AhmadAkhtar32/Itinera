@@ -1,44 +1,49 @@
-import React from 'react'
+import React, { useState } from 'react'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 
-export const SelectBudgetOptions = [
-    {
-        id: 1,
-        title: 'Cheap',
-        desc: 'Stay conscious of costs',
-        icon: '💵',
-        color: 'bg-green-100 text-green-600'
-    },
-    {
-        id: 2,
-        title: 'Moderate',
-        desc: 'Keep cost on the average side',
-        icon: '💰',
-        color: 'bg-yellow-100 text-yellow-600'
-    },
-    {
-        id: 3,
-        title: 'Luxury',
-        desc: 'Don’t worry about cost',
-        icon: '💸',
-        color: 'bg-purple-100 text-purple-600'
-    },
-]
+// Defined props type for better TypeScript support
+interface BudgetUiProps {
+    onSelectedOption: (value: string) => void;
+}
 
+function BudgetUi({ onSelectedOption }: BudgetUiProps) {
+    const [amount, setAmount] = useState('');
 
-function BudgetUi({ onSelectedOption }: any) {
+    const handleConfirm = () => {
+        if (!amount) return;
+        // Pass the formatted currency string back to ChatBox
+        onSelectedOption(`$${amount}`);
+    }
+
     return (
-        <div>
-            <div className='grid grid-cols-3 md:grid-cols-3 gap-2 items-center mt-1'>
-                {SelectBudgetOptions.map((item, index) => (
-                    <div key={index} className='p-3 border rounded-2xl bg-white hover:border-primary cursor-pointer flex flex-col items-center text-center'
-                        onClick={() => onSelectedOption(item.title + ":" + item.desc)}
-                    >
-                        <div className={`text-3xl p-3 rounded-full ${item.color}`}>{item.icon}</div>
-                        <h2 className='text-lg font-semibold mt-2'>{item.title}</h2>
-                        <p className='text-sm text-gray-500'>{item.desc}</p>
-                    </div>
-                ))}
+        <div className="p-4 border rounded-2xl bg-white w-full max-w-xs mt-2 shadow-sm">
+            <div className="mb-3">
+                <h2 className="font-bold text-lg">Your Budget</h2>
+                <p className="text-gray-500 text-sm">Enter the total amount you want to spend.</p>
             </div>
+
+            <div className="flex items-center gap-2">
+                <span className="text-2xl font-bold text-gray-400">$</span>
+                <Input
+                    type="number"
+                    placeholder="Ex. 2000"
+                    className="text-lg h-12"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleConfirm();
+                    }}
+                />
+            </div>
+
+            <Button
+                className="w-full mt-4"
+                onClick={handleConfirm}
+                disabled={!amount} // Disable if empty
+            >
+                Confirm Budget
+            </Button>
         </div>
     )
 }
