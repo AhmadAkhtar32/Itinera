@@ -3,6 +3,7 @@ import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 import { Trip } from '../page'
 import axios from 'axios'
+import Link from 'next/link'
 
 type Props = {
     trip: Trip
@@ -24,7 +25,7 @@ function MyTripCardItem({ trip }: Props) {
         setPhotoUrl(result?.data);
     }
     return (
-        <div className='p-5 shadow rounded-2xl'>
+        <Link href={'/view-trip/' + trip?.tripId} className='p-5 shadow rounded-2xl'>
             <Image
                 src={photoUrl ? photoUrl : "/placeholder.png"}
                 alt={trip.tripId}
@@ -34,7 +35,7 @@ function MyTripCardItem({ trip }: Props) {
             />
             <h2 className='flex gap-2 font-semibold text-xl mt-2'>{trip?.tripDetail?.destination} <ArrowBigRightIcon />{trip?.tripDetail?.destination}</h2>
             <h2 className='mt-2 text-gray-700'>{trip?.tripDetail?.duration} Trip with{trip?.tripDetail?.budget} Budget</h2>
-        </div>
+        </Link>
     )
 }
 
