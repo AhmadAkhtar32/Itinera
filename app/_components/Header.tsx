@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
+import { usePathname } from "next/navigation";
 
 const menuOptions = [
     { name: "Home", path: "/" },
@@ -14,6 +15,8 @@ const menuOptions = [
 export default function Header() {
 
     const { user } = useUser();
+    const path = usePathname();
+    console.log(path)
 
     return (
         <header className="flex items-center justify-between px-6 py-4">
@@ -48,11 +51,17 @@ export default function Header() {
                             Get Started
                         </Button>
                     </SignInButton> :
-                    <Link href={'/create-new-trip'}>
-                        <Button>
-                            Create New Trip
-                        </Button>
-                    </Link>
+                    path == '/create-new-trip' ?
+                        <Link href={'/my-trips'}>
+                            <Button>
+                                My Trips
+                            </Button>
+                        </Link>
+                        : <Link href={'/create-new-trip'}>
+                            <Button>
+                                Create New Trip
+                            </Button>
+                        </Link>
                 }
                 <UserButton />
             </div>
