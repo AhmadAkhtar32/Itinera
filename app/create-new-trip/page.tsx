@@ -5,6 +5,11 @@ import Itinerary from './_components/Itinerary'
 import GlobalMap from './_components/GlobalMap';
 import { Button } from '@/components/ui/button';
 import { Globe2, Plane } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 function CreateNewTrip() {
 
@@ -19,9 +24,16 @@ function CreateNewTrip() {
         {activeIndex == 0 ? < Itinerary /> :
           <GlobalMap />}
 
-        <Button size={'lg'}
-          onClick={() => setActiveIndex(activeIndex == 0 ? 1 : 0)}
-          className='absolute bg-black bottom-5 left-[50%]'>{activeIndex == 0 ? <Plane /> : <Globe2 />}</Button>
+        <Tooltip>
+          <TooltipTrigger>Hover</TooltipTrigger>
+          <TooltipContent>
+            <Button size={'lg'}
+              onClick={() => setActiveIndex(activeIndex == 0 ? 1 : 0)}
+              className='absolute bg-black bottom-5 left-[50%]'>{activeIndex == 0 ? <Plane /> : <Globe2 />}</Button>
+          </TooltipContent>
+        </Tooltip>
+
+
 
       </div>
     </div>
