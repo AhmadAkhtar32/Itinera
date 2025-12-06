@@ -65,8 +65,13 @@ type Itinerary = {
     activities: Activity[];
 };
 
+// 1. Interface definition (Correct)
+interface ChatBoxProps {
+    setCoordinates: (coordinates: number[]) => void;
+}
 
-function ChatBox() {
+// 2. FIXED: Added destructuring here so 'setCoordinates' is available inside the function
+function ChatBox({ setCoordinates }: ChatBoxProps) {
 
     const [messages, setMessages] = useState<Message[]>([]);
     const [userInput, setUserInput] = useState<string>('');
@@ -75,6 +80,7 @@ function ChatBox() {
     const [tripDetail, setTripDetail] = useState<TripInfo>();
     const SaveTripDetail = useMutation(api.tripDetail.CreateTripDetail)
     const { userDetail, setUserDetail } = useUserDetail();
+
 
     // Auto-scroll ref
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -129,6 +135,17 @@ function ChatBox() {
                 if (tripPlanData) {
                     setTripDetail(tripPlanData);
                     setTripDetailInfo(tripPlanData);
+
+                    // 3. LOGIC TO CENTER MAP
+                    // We grab the coordinates from the first hotel to center the map
+                    if (tripPlanData.hotels && tripPlanData.hotels.length > 0) {
+                        const firstHotel = tripPlanData.hotels[0];
+                        // Mapbox expects [Longitude, Latitude]
+                        setCoordinates([
+                            firstHotel.geo_coordinates.longitude,
+                            firstHotel.geo_coordinates.latitude
+                        ]);
+                    }
 
                     const tripId = uuidv4();
 

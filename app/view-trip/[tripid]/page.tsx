@@ -31,8 +31,10 @@ function ViewTrip() {
     }
 
     return (
-        <div>
-            <Itinerary />
+        <div className='grid grid-cols-5'>
+            <div>
+                <Itinerary />
+            </div>
         </div>
     )
 }
