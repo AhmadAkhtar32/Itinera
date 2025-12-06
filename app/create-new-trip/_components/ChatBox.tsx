@@ -6,7 +6,7 @@ import { Loader, Send } from 'lucide-react'
 import React, { useEffect, useState, useRef } from 'react'
 import EmptyBoxState from './EmptyBoxState'
 import GroupSizeUi from './GroupSizeUi'
-import BudgetUi from './BudgetUi' // Ensure this component exists and matches the new numeric input logic
+import BudgetUi from './BudgetUi'
 import SelectDays from './SelectDaysUi'
 import FinalUi from './FinalUi'
 import { useMutation } from 'convex/react'
@@ -113,7 +113,7 @@ function ChatBox() {
                 isFinal: isFinal
             });
 
-            console.log("TRIP", result.data);
+            console.log("AI RESPONSE FULL DATA:", result.data); // DEBUG LOG
 
             !isFinal && setMessages((prev: Message[]) => [...prev, {
                 role: 'assistant',
@@ -122,14 +122,28 @@ function ChatBox() {
             }]);
 
             if (isFinal) {
-                setTripDetail(result?.data?.trip_plan);
-                setTripDetailInfo(result?.data?.trip_plan)
-                const tripId = uuidv4();
-                await SaveTripDetail({
-                    tripDetail: result?.data?.trip_plan,
-                    tripId: tripId,
-                    uid: userDetail?._id
-                })
+                // --- FIX STARTS HERE ---
+                // We extract the plan first to check if it exists
+                const tripPlanData = result?.data?.trip_plan;
+
+                if (tripPlanData) {
+                    setTripDetail(tripPlanData);
+                    setTripDetailInfo(tripPlanData);
+
+                    const tripId = uuidv4();
+
+                    // Only save if we have the data
+                    await SaveTripDetail({
+                        tripDetail: tripPlanData,
+                        tripId: tripId,
+                        uid: userDetail?._id
+                    });
+                } else {
+                    console.error("ERROR: 'trip_plan' is missing in the API response. Cannot save to Convex.");
+                    console.log("Received Data Structure:", result.data);
+                    // You might want to show an error toast here
+                }
+                // --- FIX ENDS HERE ---
             }
         } catch (error) {
             console.error("Error sending message:", error);

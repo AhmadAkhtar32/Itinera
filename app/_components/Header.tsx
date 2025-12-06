@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { SignInButton, useUser } from "@clerk/nextjs";
+import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
 
 const menuOptions = [
     { name: "Home", path: "/" },
@@ -41,7 +41,7 @@ export default function Header() {
             </nav>
 
             {/* Get Started button placeholder */}
-            <div>
+            <div className="flex gap-5 items-center">
                 {!user ?
                     <SignInButton mode="modal">
                         <Button>
@@ -54,6 +54,7 @@ export default function Header() {
                         </Button>
                     </Link>
                 }
+                <UserButton />
             </div>
         </header>
     );

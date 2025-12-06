@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from 'openai';
+import { aj } from "../arcjet/route";
+import { auth, currentUser } from "@clerk/nextjs/server";
 
 // 1. Azure/GitHub Models Configuration
 export const openai = new OpenAI({
-    baseURL: 'https://models.inference.ai.azure.com',
-    apiKey: process.env.GITHUB_TOKEN,
+  baseURL: 'https://models.inference.ai.azure.com',
+  apiKey: process.env.GITHUB_TOKEN,
 });
 
 // ============================================================================
@@ -128,58 +130,71 @@ Return a **Strict JSON** object following this schema.
 // API ROUTE HANDLER
 // ============================================================================
 export async function POST(req: NextRequest) {
-    // We expect 'isFinal' to be sent from the frontend when the user says "Yes, generate plan"
-    const { messages, isFinal } = await req.json();
+  // We expect 'isFinal' to be sent from the frontend when the user says "Yes, generate plan"
+  const { messages, isFinal } = await req.json();
+  const user = await currentUser();
+  const { has } = await auth();
+  const hasPremiumAccess = has({ plan: 'monthly' });
+  console.log("hasPremiumAccess", hasPremiumAccess)
+  const decision = await aj.protect(req, { userId: user?.primaryEmailAddress?.emailAddress ?? '', requested: isFinal ? 5 : 0 });
 
+  //@ts-ignore
+  if (decision?.reason?.remaining == 0 && !hasPremiumAccess) {
+    return NextResponse.json({
+      resp: 'Your Daily Limit reached(No Free Credit remaining) !',
+      ui: 'limit'
+    })
+  }
+
+  try {
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'system',
+          // Dynamically switch prompt based on 'isFinal' flag
+          content: isFinal ? FINAL_PROMPT : PROMPT
+        },
+        ...messages
+      ],
+      // Force JSON mode
+      response_format: { type: 'json_object' },
+      temperature: 0.7,
+      // 🛠️ FIX 1: Increase token limit significantly. 
+      // A full itinerary + 3 hotels uses a lot of tokens. If this is too low, the JSON cuts off.
+      max_tokens: 8000,
+    });
+
+    let messageContent = completion.choices[0].message.content;
+
+    // Debugging log
+    console.log("AI Raw Response (isFinal: " + isFinal + "):", messageContent);
+
+    if (!messageContent) {
+      throw new Error("No content received from AI");
+    }
+
+    // 🛠️ FIX 2: Sanitize the output before parsing
+    // Sometimes AI adds ```json at the start even in JSON mode. We must remove it.
+    messageContent = messageContent.replace(/```json/g, "").replace(/```/g, "").trim();
+
+    // 🛠️ FIX 3: Safe Parsing
     try {
-        const completion = await openai.chat.completions.create({
-            model: 'gpt-4o-mini',
-            messages: [
-                {
-                    role: 'system',
-                    // Dynamically switch prompt based on 'isFinal' flag
-                    content: isFinal ? FINAL_PROMPT : PROMPT
-                },
-                ...messages
-            ],
-            // Force JSON mode
-            response_format: { type: 'json_object' },
-            temperature: 0.7,
-            // 🛠️ FIX 1: Increase token limit significantly. 
-            // A full itinerary + 3 hotels uses a lot of tokens. If this is too low, the JSON cuts off.
-            max_tokens: 8000,
-        });
-
-        let messageContent = completion.choices[0].message.content;
-
-        // Debugging log
-        console.log("AI Raw Response (isFinal: " + isFinal + "):", messageContent);
-
-        if (!messageContent) {
-            throw new Error("No content received from AI");
-        }
-
-        // 🛠️ FIX 2: Sanitize the output before parsing
-        // Sometimes AI adds ```json at the start even in JSON mode. We must remove it.
-        messageContent = messageContent.replace(/```json/g, "").replace(/```/g, "").trim();
-
-        // 🛠️ FIX 3: Safe Parsing
-        try {
-            const parsedData = JSON.parse(messageContent);
-            return NextResponse.json(parsedData);
-        } catch (parseError) {
-            console.error("JSON PARSE ERROR. The AI returned:", messageContent);
-            return NextResponse.json(
-                { error: "Invalid JSON response from AI", details: String(parseError) },
-                { status: 500 }
-            );
-        }
+      const parsedData = JSON.parse(messageContent);
+      return NextResponse.json(parsedData);
+    } catch (parseError) {
+      console.error("JSON PARSE ERROR. The AI returned:", messageContent);
+      return NextResponse.json(
+        { error: "Invalid JSON response from AI", details: String(parseError) },
+        { status: 500 }
+      );
     }
-    catch (e) {
-        console.error("API Error:", e);
-        return NextResponse.json(
-            { error: "Failed to process request", details: String(e) },
-            { status: 500 }
-        );
-    }
+  }
+  catch (e) {
+    console.error("API Error:", e);
+    return NextResponse.json(
+      { error: "Failed to process request", details: String(e) },
+      { status: 500 }
+    );
+  }
 }
