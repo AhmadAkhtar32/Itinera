@@ -8,9 +8,10 @@ import { api } from '@/convex/_generated/api';
 import { TripInfo } from '../create-new-trip/_components/ChatBox';
 import { ArrowBigRightIcon } from 'lucide-react';
 import Image from "next/image";
+import MyTripCardItem from './_components/MyTripCardItem';
 
 
-type Trip = {
+export type Trip = {
     tripId: any,
     tripDetail: TripInfo,
     _id: string
@@ -50,18 +51,9 @@ function MyTrips() {
                 </div>
             }
 
-            <div>
+            <div className='grid grid-cols-2 lg:grid-cols-3 gap-5 mt-6'>
                 {myTrips?.map((trip, index) => (
-                    <div key={index}>
-                        <Image
-                            src="/placeholder.png"
-                            alt={trip.tripId}
-                            width={400}
-                            height={400}
-                            className="rounded-xl object-cover"
-                        />
-                        <h2 className='flex gap-2 font-semibold text-xl'>{trip?.tripDetail?.destination} <ArrowBigRightIcon />{trip?.tripDetail?.destination}</h2>
-                    </div>
+                    <MyTripCardItem trip={trip} key={index} />
                 ))}
             </div>
         </div>
