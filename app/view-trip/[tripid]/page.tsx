@@ -1,15 +1,20 @@
 "use client"
-import { useUserDetail } from '@/app/provider';
+import Itinerary from '@/app/create-new-trip/_components/Itinerary';
+import { Trip } from '@/app/my-trips/page';
+import { userTripDetail, useUserDetail } from '@/app/provider';
 import { api } from '@/convex/_generated/api';
 import { useConvex } from 'convex/react';
 import { useParams } from 'next/navigation';
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 
 function ViewTrip() {
 
-    const { tripId } = useParams();
+    const { tripid } = useParams();
     const { userDetail, setUserDetail } = useUserDetail();
     const convex = useConvex();
+    const [tripData, setTripData] = useState<Trip>();
+    //@ts-ignore
+    const { tripDetailInfo, setTripDetailInfo } = userTripDetail();
 
     useEffect(() => {
         userDetail && GetTrip()
@@ -21,10 +26,14 @@ function ViewTrip() {
             tripid: tripid + ''
         });
         console.log(result);
+        setTripData(result);
+        setTripDetailInfo(result?.tripDetail)
     }
 
     return (
-        <div>ViewTrip</div>
+        <div>
+            <Itinerary />
+        </div>
     )
 }
 
