@@ -1,4 +1,5 @@
 "use client"
+import GlobalMap from '@/app/create-new-trip/_components/GlobalMap';
 import Itinerary from '@/app/create-new-trip/_components/Itinerary';
 import { Trip } from '@/app/my-trips/page';
 import { userTripDetail, useUserDetail } from '@/app/provider';
@@ -13,6 +14,10 @@ function ViewTrip() {
     const { userDetail, setUserDetail } = useUserDetail();
     const convex = useConvex();
     const [tripData, setTripData] = useState<Trip>();
+
+    // We add a state to hold the coordinates for the map
+    const [mapCoordinates, setMapCoordinates] = useState<number[]>([]);
+
     //@ts-ignore
     const { tripDetailInfo, setTripDetailInfo } = userTripDetail();
 
@@ -25,15 +30,30 @@ function ViewTrip() {
             uid: userDetail?._id,
             tripid: tripid + ''
         });
+
         console.log(result);
         setTripData(result);
-        setTripDetailInfo(result?.tripDetail)
+        setTripDetailInfo(result?.tripDetail);
+
+        // --- NEW LOGIC ---
+        // Extract coordinates from the first hotel in the trip details
+        if (result?.tripDetail?.hotels && result.tripDetail.hotels.length > 0) {
+            const firstHotel = result.tripDetail.hotels[0];
+            setMapCoordinates([
+                firstHotel.geo_coordinates.longitude,
+                firstHotel.geo_coordinates.latitude
+            ]);
+        }
     }
 
     return (
         <div className='grid grid-cols-5'>
-            <div>
+            <div className='col-span-3'>
                 <Itinerary />
+            </div>
+            <div className='col-span-2'>
+                {/* Pass the coordinates here to stop rotation */}
+                <GlobalMap coordinates={mapCoordinates} />
             </div>
         </div>
     )
