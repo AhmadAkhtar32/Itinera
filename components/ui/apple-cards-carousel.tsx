@@ -41,7 +41,6 @@ export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
     const onResize = () => checkScrollability();
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialScroll]);
 
   const checkScrollability = () => {
@@ -66,7 +65,7 @@ export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
 
   const handleCardClose = (index: number) => {
     if (carouselRef.current) {
-      const cardWidth = isMobile() ? 230 : 384; // (md:w-96)
+      const cardWidth = isMobile() ? 230 : 384;
       const gap = isMobile() ? 4 : 16;
       const scrollPosition = (cardWidth + gap) * (index + 1);
       carouselRef.current.scrollTo({ left: scrollPosition, behavior: "smooth" });
@@ -211,7 +210,6 @@ export const Card = ({ card, index, layout = false }: { card: CardType; index: n
           </motion.p>
         </div>
 
-        {/* image container for next/image fill */}
         <div className="absolute inset-0 z-10">
           <NextBlurImage src={card.src} alt={card.title} fill />
         </div>
@@ -220,16 +218,15 @@ export const Card = ({ card, index, layout = false }: { card: CardType; index: n
   );
 };
 
-// --- NextBlurImage (inline) ---
-
+// FIXED: Better URL detection
 const isExternalUrl = (url?: string) => {
   if (!url) return false;
-  try {
-    const u = new URL(url);
-    return u.protocol.startsWith("http");
-  } catch {
-    return false;
-  }
+  // If it starts with /, it's a local path
+  if (url.startsWith('/')) return false;
+  // If it starts with http/https, it's external
+  if (url.startsWith('http://') || url.startsWith('https://')) return true;
+  // Otherwise assume it's local
+  return false;
 };
 
 type NextBlurImageProps = {
@@ -242,10 +239,18 @@ type NextBlurImageProps = {
   blurDataURL?: string | undefined;
 };
 
-export const NextBlurImage: React.FC<NextBlurImageProps> = ({ src, alt, className, width = 600, height = 400, fill = false, blurDataURL }) => {
+export const NextBlurImage: React.FC<NextBlurImageProps> = ({ 
+  src, 
+  alt, 
+  className, 
+  width = 600, 
+  height = 400, 
+  fill = false, 
+  blurDataURL 
+}) => {
   const [loaded, setLoaded] = useState(false);
 
-  // External image -> fallback to native img with CSS blur
+  // External images use regular img tag with blur effect
   if (isExternalUrl(src)) {
     return (
       <div className={cn(fill ? "relative w-full h-full" : "w-full", className)}>
@@ -264,19 +269,18 @@ export const NextBlurImage: React.FC<NextBlurImageProps> = ({ src, alt, classNam
     );
   }
 
-  // Local asset -> use next/image optimizations
+  // Local images use Next.js Image component
   if (fill) {
     return (
-      <div className={cn("relative w-full h-full", className)}>
-        <Image
-          src={src}
-          alt={alt ?? "image"}
-          fill
-          className="object-cover"
-          placeholder={blurDataURL ? "blur" : "empty"}
-          blurDataURL={blurDataURL}
-        />
-      </div>
+      <Image
+        src={src}
+        alt={alt ?? "image"}
+        fill
+        className={cn("object-cover", className)}
+        placeholder={blurDataURL ? "blur" : "empty"}
+        blurDataURL={blurDataURL}
+        sizes="(max-width: 768px) 230px, 384px"
+      />
     );
   }
 

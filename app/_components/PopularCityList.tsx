@@ -54,37 +54,37 @@ const data = [
     {
         category: "Paris, France",
         title: "Explore the City of Lights – Eiffel Tower, Louvre & more",
-        src: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=2600&auto=format&fit=crop",
+        src: "/paris.jpg",
         content: <DummyContent />,
     },
     {
         category: "New York, USA",
         title: "Experience NYC – Times Square, Central Park, Broadway",
-        src: "https://plus.unsplash.com/premium_photo-1661954654458-c673671d4a08?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        src: "/newyork.jpg",
         content: <DummyContent />,
     },
     {
         category: "Tokyo, Japan",
         title: "Discover Tokyo – Shibuya, Cherry Blossoms, Temples",
-        src: "https://images.unsplash.com/photo-1522547902298-51566e4fb383?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        src: "/tokyo.jpg",
         content: <DummyContent />,
     },
     {
         category: "Rome, Italy",
         title: "Walk through History – Colosseum, Vatican, Roman Forum",
-        src: "https://plus.unsplash.com/premium_photo-1675975678457-d70708bf77c8?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        src: "/rome.jpg",
         content: <DummyContent />,
     },
     {
         category: "Dubai, UAE",
         title: "Luxury and Innovation – Burj Khalifa, Desert Safari",
-        src: "https://images.unsplash.com/photo-1526495124232-a04e1849168c?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        src: "/uae.jpg",
         content: <DummyContent />,
     },
     {
-        category: "Pakistan",
+        category: "Lahore, Pakistan",
         title: "Badshahi Mosque – A Symbol of Mughal Grandeur in Lahore",
-        src: "https://images.unsplash.com/photo-1586071858548-522646261545?q=80&w=1170&auto=format&fit=crop",
-        content: <DummyContent />,
+        src: "/badshahi.jpg", // Using local image from public folder
+        content: <DummyContent />, // Custom content for Badshahi Mosque
     },
 ];
