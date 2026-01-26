@@ -1,7 +1,8 @@
 "use client";
+
 import { Button } from '@/components/ui/button';
 import { Timeline } from '@/components/ui/timeline';
-import { ArrowLeft, Clock, ExternalLink, Link, Star, Ticket, Wallet } from 'lucide-react';
+import { ArrowLeft, Share2 } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
 import NextLink from 'next/link';
 import HotelCardItem from './HotelCardItem';
@@ -176,7 +177,6 @@ import Image from 'next/image';
 
 function Itinerary() {
     //@ts-ignore
-    // ✅ correct
     const { tripDetailInfo, setTripDetailInfo } = userTripDetail();
     const [tripData, setTripData] = useState<TripInfo | null>(null);
 
@@ -184,13 +184,32 @@ function Itinerary() {
         tripDetailInfo && setTripData(tripDetailInfo)
     }, [tripDetailInfo])
 
+    /* ================= SHARE TRIP LOGIC (ADDED) ================= */
+    const handleShareTrip = async () => {
+        const shareUrl = window.location.href;
+
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'My Trip Itinerary',
+                    text: 'Check out this trip itinerary!',
+                    url: shareUrl,
+                });
+            } catch (error) {
+                console.error('Share cancelled');
+            }
+        } else {
+            await navigator.clipboard.writeText(shareUrl);
+            alert('Shareable link copied to clipboard!');
+        }
+    };
+    /* ============================================================ */
 
     const data = tripData ? [
         {
             title: "Recommended Hotels",
             content: (
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                    {/* Hotel Section Fix */}
                     {tripData?.hotels.map((hotel, index) => (
                         <HotelCardItem hotel={hotel} />
                     ))}
@@ -201,32 +220,56 @@ function Itinerary() {
             title: `Day ${dayData?.day}`,
             content: (
                 <div>
-                    <p className="font-medium text-gray-700">Best Time: {dayData?.best_time_to_visit_day}</p>
+                    <p className="font-medium text-gray-700">
+                        Best Time: {dayData?.best_time_to_visit_day}
+                    </p>
                     <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mt-2'>
-                        {/* Day/Activity Section Fix */}
                         {dayData?.activities.map((activity, index) => (
                             <PlaceCardItem activity={activity} />
                         ))}
                     </div>
-                </div >
+                </div>
             )
         }))
     ] : [];
+
     return (
         <div className="relative w-full h-[80vh] overflow-auto">
-            {tripData ? <Timeline data={data} tripData={tripData} />
-                :
 
-                <div>
-                    <h2 className='flex gap-2 text-3xl text-white left-20 items-center absolute bottom-10'><ArrowLeft />Getting to know you to build perfect trip here . . . .</h2>
-                    <Image src={'/travel.png'} alt='Travel' width={'800'} height={800}
-                        className='w-full h-full object-cover rounded-3xl' />
-
+            {/* ================= SHARE BUTTON (ADDED) ================= */}
+            {tripData && (
+                <div className="sticky top-4 z-50 flex justify-end px-4">
+                    <Button
+                        onClick={handleShareTrip}
+                        className="flex items-center gap-2"
+                        variant="secondary"
+                    >
+                        <Share2 size={18} />
+                        Share Trip
+                    </Button>
                 </div>
+            )}
+            {/* ========================================================= */}
 
-            }
+            {tripData ? (
+                <Timeline data={data} tripData={tripData} />
+            ) : (
+                <div>
+                    <h2 className='flex gap-2 text-3xl text-white left-20 items-center absolute bottom-10'>
+                        <ArrowLeft />
+                        Getting to know you to build perfect trip here . . . .
+                    </h2>
+                    <Image
+                        src={'/travel.png'}
+                        alt='Travel'
+                        width={800}
+                        height={800}
+                        className='w-full h-full object-cover rounded-3xl'
+                    />
+                </div>
+            )}
         </div>
     );
 }
 
-export default Itinerary
+export default Itinerary;
