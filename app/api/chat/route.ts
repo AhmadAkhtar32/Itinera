@@ -35,14 +35,13 @@ export async function POST(req: Request) {
 
         // 5. CALL THE STABLE 2.0 FLASH MODEL
         const response = await fetch(
-            // Replace 'gemini-2.0-flash' with 'gemini-2.0-flash-lite'
-`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: validContents })
-            }
-        );
+    `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+    {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contents: validContents })
+    }
+);
 
         const data = await response.json();
 
