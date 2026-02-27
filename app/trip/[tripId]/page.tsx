@@ -11,7 +11,7 @@ export default function SharedTripView({ params }: { params: Promise<{ tripId: s
     const resolvedParams = use(params);
     
     // 3. USE THE UNWRAPPED ID
-    const tripData = useQuery(api.tripDetails.GetPublicTripById, { tripid: resolvedParams.tripId });
+    const tripData = useQuery(api.tripDetail.GetPublicTripById, { tripid: resolvedParams.tripId });
 
     if (tripData === undefined) {
         return <div className="p-10 text-center">Loading Itinera trip...</div>;
