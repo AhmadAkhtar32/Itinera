@@ -19,9 +19,11 @@ export default function RootLayout({
 
   return (
     <ClerkProvider>
-      <html lang="en">
+      {/* 👇 Added suppressHydrationWarning to html and body */}
+      <html lang="en" suppressHydrationWarning>
         <body
           className={outfit.className}
+          suppressHydrationWarning
         >
           <ConvexClientProvider>
             {children}

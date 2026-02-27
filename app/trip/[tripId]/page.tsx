@@ -2,7 +2,8 @@
 
 import { use } from "react"; // 1. MUST IMPORT THIS
 import { useQuery } from "convex/react";
-import { api } from "../../../convex/_generated/api"; // Fixed path!
+// Change it to this:
+import { api } from "@/convex/_generated/api"; // Fixed path!
 
 export default function SharedTripView({ params }: { params: Promise<{ tripId: string }> }) {
     
