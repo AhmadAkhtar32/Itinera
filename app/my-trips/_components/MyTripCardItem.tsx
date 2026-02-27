@@ -71,7 +71,7 @@ function MyTripCardItem({ trip }: Props) {
             />
 
             <h2 className='flex gap-2 font-semibold text-xl mt-2'>
-                {trip?.tripDetail?.destination}
+                {trip?.tripDetail?.origin}
                 <ArrowBigRightIcon />
                 {trip?.tripDetail?.destination}
             </h2>
