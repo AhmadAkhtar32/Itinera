@@ -186,7 +186,7 @@ function Itinerary() {
 
     /* ================= SHARE TRIP LOGIC (ADDED) ================= */
     /* ================= SHARE TRIP LOGIC (UPDATED) ================= */
-const handleShareTrip = async (tripId) => {
+const handleShareTrip = async (tripId: string) => {
     // 1. Check if we actually have a trip ID to share
     if (!tripId) {
         alert("Please save the trip first before sharing!");
