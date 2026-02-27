@@ -3,6 +3,7 @@ import { Outfit } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ConvexClientProvider } from "./ConvexClientProvider";
+import FloatingChatbot from "@/components/FloatingChatbot";
 
 export const metadata: Metadata = {
   title: "Itinera ✈️",
@@ -27,6 +28,8 @@ export default function RootLayout({
         >
           <ConvexClientProvider>
             {children}
+            {/* 2. 👇 Add the chatbot right here below children! */}
+            <FloatingChatbot />
           </ConvexClientProvider>
 
         </body>
