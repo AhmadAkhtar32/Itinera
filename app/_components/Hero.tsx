@@ -68,10 +68,10 @@ function Hero() {
                 ))}
             </div>
 
-            <h2 className='my-2 mt-5 flex gap-2'>Not Sure Where To Start? <strong>See how It Works</strong> ⬇️</h2>
+            {/* <h2 className='my-2 mt-5 flex gap-2'>Not Sure Where To Start? <strong>See how It Works</strong> ⬇️</h2> */}
 
             {/* Video section  */}
-            <div className='w-full max-w-5xl mx-auto'>
+            {/* <div className='w-full max-w-5xl mx-auto'>
                 <HeroVideoDialog
                     className="block dark:hidden "
                     animationStyle="from-center"
@@ -79,7 +79,7 @@ function Hero() {
                     thumbnailSrc="https://images.pexels.com/photos/346885/pexels-photo-346885.jpeg"
                     thumbnailAlt="Dummy Video Thumbnail"
                 />
-            </div>
+            </div> */}
 
         </div>
     )
