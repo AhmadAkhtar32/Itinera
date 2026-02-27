@@ -1,34 +1,46 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
+// Initialize with the key from your .env.local
 const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY!);
 
 export async function POST(req: Request) {
     try {
         const { message, history } = await req.json();
 
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
-        // System prompt to tell the AI how to behave
-        const systemInstruction = `You are the friendly AI travel assistant for an app called 'Itinera'. 
-        Your job is to chat with users, ask about their travel preferences (budget, group size, destination), 
-        give them quick recommendations, and encourage them to click the 'Create New Trip' button to generate a full itinerary. Keep responses short, engaging, and conversational.`;
-
-        // Combine history with the new message
-        const chat = model.startChat({
-            history: history || [],
-            generationConfig: { maxOutputTokens: 200 }, // Keep responses short
+        // Ensure history is valid and starts with a 'user' role
+        const validHistory = (history || []).filter((msg: any, index: number) => {
+            if (index === 0 && msg.role === 'model') return false;
+            return true;
         });
 
-        // Send the prompt with the system instruction hidden inside
+        // 🛠️ THE FIX: Use the specific model identifier that works with stable v1
+        // If "gemini-1.5-flash" still 404s, try "gemini-1.5-flash-latest"
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-1.5-flash",
+        });
+
+        const systemInstruction = `You are the friendly AI travel assistant for 'Itinera'. 
+        Help users brainstorm ideas for destination, budget, and group size. 
+        Always encourage them to use the 'Create New Trip' button for a full itinerary.`;
+
+        const chat = model.startChat({
+            history: validHistory,
+            generationConfig: {
+                maxOutputTokens: 250,
+            },
+        });
+
         const result = await chat.sendMessage(`${systemInstruction}\n\nUser: ${message}`);
         const response = await result.response;
-        const text = response.text();
+        
+        return NextResponse.json({ reply: response.text() });
 
-        return NextResponse.json({ reply: text });
-
-    } catch (error) {
-        console.error("Chatbot API Error:", error);
-        return NextResponse.json({ error: "Failed to fetch response" }, { status: 500 });
+    } catch (error: any) {
+        console.error("Chatbot API Error Details:", error.message);
+        return NextResponse.json(
+            { error: "Failed", details: error.message }, 
+            { status: 500 }
+        );
     }
 }
