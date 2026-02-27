@@ -27,36 +27,34 @@ function MyTripCardItem({ trip }: Props) {
     }
 
     /* ================= SHARE TRIP LOGIC (ADDED ONLY) ================= */
-    const handleShareTrip = async (
-        e: React.MouseEvent<HTMLButtonElement>
-    ) => {
-        e.preventDefault();
-        e.stopPropagation();
+    const handleShareTrip = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
 
-        const shareUrl = `${window.location.origin}/view-trip/${trip?.tripId}`;
+    // Changed tripId to _id here as well
+    const shareUrl = `${window.location.origin}/view-trip/${trip?._id}`; 
 
-        if (navigator.share) {
-            await navigator.share({
-                title: 'My Trip Itinerary',
-                text: 'Check out this trip itinerary!',
-                url: shareUrl,
-            });
-        } else {
-            await navigator.clipboard.writeText(shareUrl);
-            alert('Shareable link copied to clipboard!');
-        }
-    };
+    if (navigator.share) {
+        await navigator.share({
+            title: 'My Trip Itinerary',
+            text: 'Check out this trip itinerary!',
+            url: shareUrl,
+        });
+    } else {
+        await navigator.clipboard.writeText(shareUrl);
+        alert('Shareable link copied to clipboard!');
+    }
+};
     /* ================================================================ */
 
     return (
         <Link
-            href={'/view-trip/' + trip?.tripId}
-            className='p-5 shadow rounded-2xl relative'
-        >
+    href={'/view-trip/' + trip?._id} // <-- Changed tripId to _id
+    className='p-5 shadow rounded-2xl relative'
+>
             {/* ================= SHARE BUTTON (ADDED ONLY) ================= */}
             <button
-    // 👇 Assuming your variable is named tripId. Update this if it's named something else!
-    onClick={() => handleShareTrip(trip.tripId)}
+    onClick={handleShareTrip} // <-- Just the function name, no arrow function!
     className='absolute top-4 right-4 z-10 bg-white p-2 rounded-full shadow hover:bg-gray-100'
     aria-label="Share Trip"
 >
