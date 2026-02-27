@@ -4,6 +4,7 @@ import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ConvexClientProvider } from "./ConvexClientProvider";
 import FloatingChatbot from "@/app/_components/FloatingChatbot";
+import Footer from "./_components/Footer";
 
 export const metadata: Metadata = {
   title: "Itinera ✈️",
@@ -28,7 +29,7 @@ export default function RootLayout({
         >
           <ConvexClientProvider>
             {children}
-            {/* 2. 👇 Add the chatbot right here below children! */}
+            <Footer />
             <FloatingChatbot />
           </ConvexClientProvider>
 
