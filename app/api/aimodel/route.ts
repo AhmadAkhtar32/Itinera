@@ -47,16 +47,20 @@ Return a single JSON object:
 // ============================================================================
 // PROMPT 2: FINAL GENERATOR (Creates the Plan)
 // ============================================================================
+// ============================================================================
+// PROMPT 2: FINAL GENERATOR (Creates the Plan)
+// ============================================================================
 const FINAL_PROMPT = `
 Generate a detailed Travel Plan based on the user's chat history. 
 
-**CRITICAL BUDGETING LOGIC (MUST FOLLOW):**
-1. **Analyze the Budget:** Extract the exact numeric value (e.g., $300).
-2. **Allocation Strategy:**
-   - If the budget is **Low (under $500)**: You MUST suggest **Hostels, Budget Inns, or 2-star hotels**. Do NOT suggest luxury resorts. Focus on **Free activities** (walking tours, parks) and cheap street food.
+**CRITICAL RULES (MUST FOLLOW):**
+1. **DURATION ENFORCEMENT:** You MUST generate an itinerary that covers exactly the number of days the user requested. If the user asks for 7 days, the 'itinerary' array MUST contain exactly 7 objects (Day 1 through Day 7). Do not summarize, group days, or stop early.
+2. **Analyze the Budget:** Extract the exact numeric value (e.g., $300).
+3. **Allocation Strategy:**
+   - If the budget is **Low (under $500)**: Suggest Hostels, Budget Inns, or 2-star hotels. Focus on Free activities and cheap street food.
    - If the budget is **Medium**: Suggest 3-4 star hotels and a mix of paid/free activities.
    - If the budget is **High**: Suggest 5-star hotels and premium experiences.
-3. **Math Verification:** Ensure (Hotel Price x Nights) + (Activity Costs) does NOT exceed the Total Budget.
+4. **Math Verification:** Ensure (Hotel Price x Nights) + (Activity Costs) does NOT exceed the Total Budget.
 
 **OUTPUT REQUIREMENTS:**
 Return a **Strict JSON** object following this schema. 
@@ -70,7 +74,6 @@ Return a **Strict JSON** object following this schema.
     "budget": "string",
     "group_size": "string",
     "hotels": [ 
-      // Generate at least 3 objects here
       {
         "hotel_name": "string",
         "hotel_address": "string",
@@ -98,28 +101,13 @@ Return a **Strict JSON** object following this schema.
             "ticket_pricing": "string",
             "time_travel_each_location": "string",
             "best_time_to_visit": "Morning"
-          },
-          {
-            "place_name": "Afternoon Activity Name",
-            "place_details": "Description...",
-            "place_image_url": "string",
-            "geo_coordinates": { "latitude": 0, "longitude": 0 },
-            "place_address": "string",
-            "ticket_pricing": "string",
-            "time_travel_each_location": "string",
-            "best_time_to_visit": "Afternoon"
-          },
-          {
-            "place_name": "Evening Activity Name",
-            "place_details": "Description...",
-            "place_image_url": "string",
-            "geo_coordinates": { "latitude": 0, "longitude": 0 },
-            "place_address": "string",
-            "ticket_pricing": "string",
-            "time_travel_each_location": "string",
-            "best_time_to_visit": "Evening"
           }
+          // Include Afternoon and Evening activities here
         ]
+      },
+      {
+        "day": 2,
+        "day_plan": "Continue generating for EVERY SINGLE DAY of the requested duration..."
       }
     ]
   }
