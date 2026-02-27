@@ -1,83 +1,89 @@
+"use client"
 import { ArrowBigRightIcon, Share2 } from 'lucide-react'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 import { Trip } from '../page'
-import axios from 'axios'
 import Link from 'next/link'
+// 🛠️ Updated import to use the Pexels utility
+import { getDestinationImage } from '@/lib/pexels'
 
 type Props = {
     trip: Trip
 }
 
 function MyTripCardItem({ trip }: Props) {
-    const [photoUrl, setPhotoUrl] = useState<string>();
+    // 🛠️ Initialize as null to prevent Next.js empty string errors
+    const [photoUrl, setPhotoUrl] = useState<string | null>(null);
 
     useEffect(() => {
-        trip && GetGooglePlaceDetail();
+        if (trip?.tripDetail?.destination) {
+            fetchTripImage();
+        }
     }, [trip])
 
-    const GetGooglePlaceDetail = async () => {
-        const result = await axios.post('/api/google-place-detail', {
-            placeName: trip?.tripDetail?.destination
-        });
-        if (result?.data?.e) {
-            return;
+    const fetchTripImage = async () => {
+        try {
+            // 🛠️ Using the Pexels utility instead of the internal Google API route
+            const url = await getDestinationImage(trip.tripDetail.destination);
+            setPhotoUrl(url || null);
+        } catch (error) {
+            console.error("Error fetching trip image:", error);
+            setPhotoUrl(null);
         }
-        setPhotoUrl(result?.data);
     }
 
-    /* ================= SHARE TRIP LOGIC (ADDED ONLY) ================= */
+    /* ================= SHARE TRIP LOGIC ================= */
     const handleShareTrip = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
+        e.preventDefault();
+        e.stopPropagation();
 
-    // Changed tripId to _id here as well
-    const shareUrl = `${window.location.origin}/view-trip/${trip?._id}`; 
+        const shareUrl = `${window.location.origin}/view-trip/${trip?._id}`; 
 
-    if (navigator.share) {
-        await navigator.share({
-            title: 'My Trip Itinerary',
-            text: 'Check out this trip itinerary!',
-            url: shareUrl,
-        });
-    } else {
-        await navigator.clipboard.writeText(shareUrl);
-        alert('Shareable link copied to clipboard!');
-    }
-};
-    /* ================================================================ */
+        if (navigator.share) {
+            await navigator.share({
+                title: 'My Trip Itinerary',
+                text: `Check out my trip to ${trip?.tripDetail?.destination}!`,
+                url: shareUrl,
+            });
+        } else {
+            await navigator.clipboard.writeText(shareUrl);
+            alert('Shareable link copied to clipboard!');
+        }
+    };
 
     return (
         <Link
-    href={'/view-trip/' + trip?._id} // <-- Changed tripId to _id
-    className='p-5 shadow rounded-2xl relative'
->
-            {/* ================= SHARE BUTTON (ADDED ONLY) ================= */}
+            href={'/view-trip/' + trip?._id}
+            className='p-5 shadow rounded-2xl relative bg-white hover:scale-[1.02] transition-transform duration-200 block'
+        >
             <button
-    onClick={handleShareTrip} // <-- Just the function name, no arrow function!
-    className='absolute top-4 right-4 z-10 bg-white p-2 rounded-full shadow hover:bg-gray-100'
-    aria-label="Share Trip"
->
-    <Share2 size={18} />
-</button>
-            {/* ============================================================ */}
+                onClick={handleShareTrip}
+                className='absolute top-4 right-4 z-10 bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-md hover:bg-white transition-colors'
+                aria-label="Share Trip"
+            >
+                <Share2 size={18} className="text-gray-700" />
+            </button>
 
-            <Image
-                src={photoUrl ? photoUrl : "/placeholder.png"}
-                alt={trip.tripId}
-                width={400}
-                height={400}
-                className="rounded-xl object-cover w-full h-[270px]"
-            />
+            <div className="relative w-full h-[270px] overflow-hidden rounded-xl bg-gray-100">
+                <Image
+                    // 🛠️ Strict check to ensure Next.js never receives an empty string
+                    src={photoUrl && photoUrl !== "" ? photoUrl : "/assets/images/placeholder.png"}
+                    alt={trip?.tripDetail?.destination || "Trip Card"}
+                    width={400}
+                    height={400}
+                    className="object-cover w-full h-full"
+                    priority={false}
+                />
+            </div>
 
-            <h2 className='flex gap-2 font-semibold text-xl mt-2'>
+            <h2 className='flex gap-2 font-bold text-xl mt-3 items-center text-gray-900'>
                 {trip?.tripDetail?.origin}
-                <ArrowBigRightIcon />
+                <ArrowBigRightIcon size={20} className="text-blue-600" />
                 {trip?.tripDetail?.destination}
             </h2>
 
-            <h2 className='mt-2 text-gray-700'>
-                {trip?.tripDetail?.duration} Trip with {trip?.tripDetail?.budget} Budget
+            <h2 className='mt-1 text-sm text-gray-500 font-medium'>
+                {trip?.tripDetail?.duration} • {trip?.tripDetail?.budget} Budget
             </h2>
         </Link>
     )

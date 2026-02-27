@@ -4,7 +4,9 @@ import { Clock, ExternalLink, Ticket } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import NextLink from 'next/link';
 import { Activity } from './ChatBox';
-// 🛠️ Updated import to use the Pexels utility
+
+// 🛠️ FIX: Corrected import path based on your sidebar structure
+// Ensure lib/pexels.ts exists and exports getDestinationImage
 import { getDestinationImage } from '@/lib/pexels';
 
 type Props = {
@@ -12,24 +14,26 @@ type Props = {
 }
 
 function PlaceCardItem({ activity }: Props) {
-    const [photoUrl, setPhotoUrl] = useState<string>();
+    // 🛠️ Initialize with null instead of undefined to avoid 'empty string' errors in Next.js
+    const [photoUrl, setPhotoUrl] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     useEffect(() => {
-        // 🛠️ Switched from Google API to Pexels
         if (activity?.place_name) {
             fetchPexelsImage();
         }
-    }, [activity])
+    }, [activity]);
 
     const fetchPexelsImage = async () => {
         setIsLoading(true);
         try {
-            // 🛠️ Fetching live images from Pexels for free
+            // 🛠️ Fetching from Pexels using the utility function
             const url = await getDestinationImage(activity.place_name);
-            setPhotoUrl(url);
+            // Ensure we don't set an empty string
+            setPhotoUrl(url || null);
         } catch (error) {
             console.error("Error loading activity image:", error);
+            setPhotoUrl(null);
         } finally {
             setIsLoading(false);
         }
@@ -38,10 +42,10 @@ function PlaceCardItem({ activity }: Props) {
     return (
         <div className='p-3 border rounded-xl shadow-sm bg-white hover:shadow-md transition-shadow'>
             <div className='relative h-[150px] w-full overflow-hidden rounded-xl bg-gray-100'>
-                {/* 🛠️ Improved Image component with fallback logic */}
+                {/* 🛠️ Improved fallback check for the src attribute */}
                 <img
-                    src={photoUrl ? photoUrl : '/assets/images/placeholder.png'}
-                    alt={activity.place_name}
+                    src={photoUrl && photoUrl !== "" ? photoUrl : '/assets/images/placeholder.png'}
+                    alt={activity.place_name || "Activity Image"}
                     className={`object-cover w-full h-full transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
                 />
                 {isLoading && (
@@ -78,4 +82,4 @@ function PlaceCardItem({ activity }: Props) {
     )
 }
 
-export default PlaceCardItem
+export default PlaceCardItem;
