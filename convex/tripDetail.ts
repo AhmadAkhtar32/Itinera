@@ -51,17 +51,16 @@ export const GetTripById = query({
     },
 });
 // Add this below your existing queries
+// In convex/tripDetail.ts
 export const GetPublicTripById = query({
-    args: {
-        tripid: v.string()
-    },
+    args: { tripid: v.string() },
     handler: async (ctx, args) => {
         const result = await ctx.db
             .query("TripDetailTable")
-            .filter((q) => q.eq(q.field('tripId'), args.tripid))
+            // Make sure this says '_id' and not 'tripId'!
+            .filter((q) => q.eq(q.field('_id'), args.tripid)) 
             .collect();
 
-        // Return the first match, or null if it doesn't exist
         return result.length > 0 ? result[0] : null;
     },
 });

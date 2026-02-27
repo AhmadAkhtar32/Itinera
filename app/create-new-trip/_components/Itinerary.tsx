@@ -249,14 +249,14 @@ const handleShareTrip = async (tripId) => {
             {/* ================= SHARE BUTTON (ADDED) ================= */}
             {tripData && (
                 <div className="sticky top-4 z-50 flex justify-end px-4">
-                    <Button
+                    {/* <Button
                         onClick={handleShareTrip}
                         className="flex items-center gap-2"
                         variant="secondary"
                     >
                         <Share2 size={18} />
                         Share Trip
-                    </Button>
+                    </Button> */}
                 </div>
             )}
             {/* ========================================================= */}

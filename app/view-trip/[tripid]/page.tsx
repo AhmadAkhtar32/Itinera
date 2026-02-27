@@ -9,9 +9,11 @@ import { useParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 
 function ViewTrip() {
-
-    const { tripid } = useParams();
-    const { userDetail, setUserDetail } = useUserDetail();
+    const params = useParams();
+    // Safely catch the ID whether the folder is named [tripid] or [tripId]
+    const tripid = params.tripid || params.tripId; 
+    
+    const { userDetail } = useUserDetail();
     const convex = useConvex();
     const [tripData, setTripData] = useState<Trip>();
 
@@ -21,28 +23,40 @@ function ViewTrip() {
     //@ts-ignore
     const { tripDetailInfo, setTripDetailInfo } = userTripDetail();
 
+    // 1. CHANGED: Trigger the fetch as soon as we have the trip ID from the URL, 
+    // without waiting to see if a user is logged in.
     useEffect(() => {
-        userDetail && GetTrip()
-    }, [userDetail])
+        if (tripid) {
+            GetTrip();
+        }
+    }, [tripid])
 
     const GetTrip = async () => {
-        const result = await convex.query(api.tripDetail.GetTripById, {
-            uid: userDetail?._id,
-            tripid: tripid + ''
-        });
+        try {
+            // 2. CHANGED: Call the public query and remove the 'uid' argument
+            const result = await convex.query(api.tripDetail.GetPublicTripById, {
+                tripid: tripid + ''
+            });
 
-        console.log(result);
-        setTripData(result);
-        setTripDetailInfo(result?.tripDetail);
+            console.log("Shared Trip Result:", result);
+            
+            if (result) {
+                setTripData(result);
+                setTripDetailInfo(result?.tripDetail);
 
-        // --- NEW LOGIC ---
-        // Extract coordinates from the first hotel in the trip details
-        if (result?.tripDetail?.hotels && result.tripDetail.hotels.length > 0) {
-            const firstHotel = result.tripDetail.hotels[0];
-            setMapCoordinates([
-                firstHotel.geo_coordinates.longitude,
-                firstHotel.geo_coordinates.latitude
-            ]);
+                // Extract coordinates from the first hotel in the trip details
+                if (result?.tripDetail?.hotels && result.tripDetail.hotels.length > 0) {
+                    const firstHotel = result.tripDetail.hotels[0];
+                    setMapCoordinates([
+                        firstHotel.geo_coordinates.longitude,
+                        firstHotel.geo_coordinates.latitude
+                    ]);
+                }
+            } else {
+                console.warn("No trip found in the database for this ID.");
+            }
+        } catch (error) {
+            console.error("Error fetching the shared trip:", error);
         }
     }
 
@@ -59,4 +73,4 @@ function ViewTrip() {
     )
 }
 
-export default ViewTrip
+export default ViewTrip;
