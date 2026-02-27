@@ -50,3 +50,18 @@ export const GetTripById = query({
         return result[0];
     },
 });
+// Add this below your existing queries
+export const GetPublicTripById = query({
+    args: {
+        tripid: v.string()
+    },
+    handler: async (ctx, args) => {
+        const result = await ctx.db
+            .query("TripDetailTable")
+            .filter((q) => q.eq(q.field('tripId'), args.tripid))
+            .collect();
+
+        // Return the first match, or null if it doesn't exist
+        return result.length > 0 ? result[0] : null;
+    },
+});

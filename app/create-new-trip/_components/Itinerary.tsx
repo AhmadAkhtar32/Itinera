@@ -185,24 +185,34 @@ function Itinerary() {
     }, [tripDetailInfo])
 
     /* ================= SHARE TRIP LOGIC (ADDED) ================= */
-    const handleShareTrip = async () => {
-        const shareUrl = window.location.href;
+    /* ================= SHARE TRIP LOGIC (UPDATED) ================= */
+const handleShareTrip = async (tripId) => {
+    // 1. Check if we actually have a trip ID to share
+    if (!tripId) {
+        alert("Please save the trip first before sharing!");
+        return;
+    }
 
-        if (navigator.share) {
-            try {
-                await navigator.share({
-                    title: 'My Trip Itinerary',
-                    text: 'Check out this trip itinerary!',
-                    url: shareUrl,
-                });
-            } catch (error) {
-                console.error('Share cancelled');
-            }
-        } else {
-            await navigator.clipboard.writeText(shareUrl);
-            alert('Shareable link copied to clipboard!');
+    // 2. Build the URL pointing to the specific trip's viewing page
+    const baseUrl = window.location.origin; // Gets http://localhost:3000 (or your live domain)
+    const shareUrl = `${baseUrl}/trip/${tripId}`; // Update "/trip/" if your viewing route is named differently
+
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: 'My Trip Itinerary - Itinera',
+                text: 'Check out this awesome trip plan!',
+                url: shareUrl,
+            });
+        } catch (error) {
+            console.error('Share cancelled or failed:', error);
         }
-    };
+    } else {
+        await navigator.clipboard.writeText(shareUrl);
+        alert('Shareable link copied to clipboard!');
+    }
+};
+/* ============================================================ */
     /* ============================================================ */
 
     const data = tripData ? [

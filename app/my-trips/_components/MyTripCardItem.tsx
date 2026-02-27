@@ -55,12 +55,13 @@ function MyTripCardItem({ trip }: Props) {
         >
             {/* ================= SHARE BUTTON (ADDED ONLY) ================= */}
             <button
-                onClick={handleShareTrip}
-                className='absolute top-4 right-4 z-10 bg-white p-2 rounded-full shadow hover:bg-gray-100'
-                aria-label="Share Trip"
-            >
-                <Share2 size={18} />
-            </button>
+    // 👇 Change this line right here
+    onClick={() => handleShareTrip(tripId)} 
+    className='absolute top-4 right-4 z-10 bg-white p-2 rounded-full shadow hover:bg-gray-100'
+    aria-label="Share Trip"
+>
+    <Share2 size={18} />
+</button>
             {/* ============================================================ */}
 
             <Image
