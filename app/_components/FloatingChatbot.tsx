@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Loader2 } from 'lucide-react';
 import axios from 'axios';
+import { Button } from '@/components/ui/button';
 
 type ChatMessage = {
     role: 'user' | 'model';
@@ -66,9 +67,9 @@ export default function FloatingChatbot() {
                         <div className="font-bold flex items-center gap-2">
                             <span>✈️ Itinera Assistant</span>
                         </div>
-                        <button onClick={() => setIsOpen(false)} className="hover:bg-blue-700 p-1 rounded-full transition">
+                        <Button onClick={() => setIsOpen(false)} className="hover:bg-blue-700 p-1 rounded-full transition">
                             <X size={18} />
-                        </button>
+                        </Button>
                     </div>
 
                     {/* Messages Area */}
@@ -104,25 +105,25 @@ export default function FloatingChatbot() {
                             placeholder="Type a message..."
                             className="flex-1 bg-gray-100 dark:bg-neutral-800 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
-                        <button 
+                        <Button 
                             onClick={handleSend}
                             disabled={isLoading || !input.trim()}
                             className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 disabled:opacity-50 transition"
                         >
                             <Send size={16} />
-                        </button>
+                        </Button>
                     </div>
                 </div>
             )}
 
             {/* Floating Toggle Button */}
             {!isOpen && (
-                <button 
+                <Button 
                     onClick={() => setIsOpen(true)}
                     className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-2xl transition-transform hover:scale-105"
                 >
                     <MessageCircle size={28} />
-                </button>
+                </Button>
             )}
         </div>
     );
