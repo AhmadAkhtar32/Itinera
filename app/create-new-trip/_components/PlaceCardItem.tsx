@@ -4,58 +4,73 @@ import { Clock, ExternalLink, Ticket } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import NextLink from 'next/link';
 import { Activity } from './ChatBox';
-import axios from 'axios';
+// 🛠️ Updated import to use the Pexels utility
+import { getDestinationImage } from '@/lib/pexels';
+
 type Props = {
     activity: Activity
 }
-function PlaceCardItem({ activity }: Props) {
 
+function PlaceCardItem({ activity }: Props) {
     const [photoUrl, setPhotoUrl] = useState<string>();
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
     useEffect(() => {
-        activity && GetGooglePlaceDetail();
+        // 🛠️ Switched from Google API to Pexels
+        if (activity?.place_name) {
+            fetchPexelsImage();
+        }
     }, [activity])
 
-    const GetGooglePlaceDetail = async () => {
-        const result = await axios.post('/api/google-place-detail', {
-            placeName: activity?.place_name + ":" + activity?.place_address
-        });
-        if (result?.data?.e) {
-            return;
+    const fetchPexelsImage = async () => {
+        setIsLoading(true);
+        try {
+            // 🛠️ Fetching live images from Pexels for free
+            const url = await getDestinationImage(activity.place_name);
+            setPhotoUrl(url);
+        } catch (error) {
+            console.error("Error loading activity image:", error);
+        } finally {
+            setIsLoading(false);
         }
-        setPhotoUrl(result?.data);
     }
 
     return (
-        <div className='p-3 border rounded-xl shadow-sm bg-white'>
-            <div className='relative h-[150px] w-full'>
+        <div className='p-3 border rounded-xl shadow-sm bg-white hover:shadow-md transition-shadow'>
+            <div className='relative h-[150px] w-full overflow-hidden rounded-xl bg-gray-100'>
+                {/* 🛠️ Improved Image component with fallback logic */}
                 <img
                     src={photoUrl ? photoUrl : '/assets/images/placeholder.png'}
-                    width={400}
-                    height={200}
                     alt={activity.place_name}
-                    className='object-cover rounded-xl w-full h-full'
+                    className={`object-cover w-full h-full transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
                 />
+                {isLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-neutral-100 animate-pulse">
+                        <span className="text-[10px] text-neutral-400">Loading Image...</span>
+                    </div>
+                )}
             </div>
+            
             <div className='mt-2'>
-                <h2 className='font-bold text-lg'>{activity?.place_name}</h2>
-                <p className='text-gray-500 text-sm line-clamp-2'>{activity?.place_details}</p>
-                <div className='flex gap-4 mt-2 mb-3'>
-                    <h2 className='flex gap-1 text-blue-500 text-xs items-center'>
+                <h2 className='font-bold text-lg leading-tight'>{activity?.place_name}</h2>
+                <p className='text-gray-500 text-sm line-clamp-2 mt-1'>{activity?.place_details}</p>
+                
+                <div className='flex flex-wrap gap-3 mt-3 mb-4'>
+                    <h2 className='flex gap-1 text-blue-600 bg-blue-50 px-2 py-1 rounded-md text-[11px] font-semibold items-center'>
                         <Ticket className='w-3 h-3' /> {activity?.ticket_pricing}
                     </h2>
-                    <p className='flex gap-1 text-orange-400 text-xs items-center'>
+                    <p className='flex gap-1 text-orange-600 bg-orange-50 px-2 py-1 rounded-md text-[11px] font-semibold items-center'>
                         <Clock className='w-3 h-3' /> {activity?.best_time_to_visit}
                     </p>
                 </div>
 
-                {/* FIXED BUTTON: Standard colors to ensure visibility */}
                 <NextLink
-                    href={'https://www.google.com/maps/search/?api=1&query=' + activity?.place_name}
+                    href={'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(activity?.place_name + " " + (activity?.place_address || ""))}
                     target='_blank'
                     className='block w-full'
                 >
-                    <Button className="w-full bg-black text-white hover:bg-gray-700">
-                        View on Map <ExternalLink className='w-4 h-4 ml-2' />
+                    <Button className="w-full bg-neutral-900 text-white hover:bg-neutral-700 transition-colors text-xs py-5">
+                        View on Map <ExternalLink className='w-3.5 h-3.5 ml-2' />
                     </Button>
                 </NextLink>
             </div>
