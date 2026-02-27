@@ -12,6 +12,7 @@
     "@arcjet/inspect": "^1.0.0-beta.15",
     "@arcjet/next": "^1.0.0-beta.15",
     "@clerk/nextjs": "^6.35.5",
+    "@google/generative-ai": "^0.24.1",
     "@hookform/resolvers": "^5.2.2",
     "@mapbox/search-js-web": "^1.5.0",
     "@radix-ui/react-label": "^2.1.8",

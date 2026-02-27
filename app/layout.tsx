@@ -3,7 +3,7 @@ import { Outfit } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ConvexClientProvider } from "./ConvexClientProvider";
-import FloatingChatbot from "@/components/FloatingChatbot";
+import FloatingChatbot from "@/app/_components/FloatingChatbot";
 
 export const metadata: Metadata = {
   title: "Itinera ✈️",
