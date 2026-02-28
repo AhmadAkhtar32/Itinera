@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
+import { LayoutDashboard, Map } from "lucide-react"; // 🛠️ 1. Added the Map icon
 
 const menuOptions = [
     { name: "Home", path: "/" },
@@ -16,7 +17,6 @@ export default function Header() {
 
     const { user } = useUser();
     const path = usePathname();
-    console.log(path)
 
     return (
         <header className="flex items-center justify-between px-6 py-4">
@@ -63,7 +63,24 @@ export default function Header() {
                             </Button>
                         </Link>
                 }
-                <UserButton />
+                
+                <UserButton>
+                    <UserButton.MenuItems>
+                        {/* Dashboard Link */}
+                        <UserButton.Link
+                            label="Dashboard"
+                            labelIcon={<LayoutDashboard size={15} />}
+                            href="/dashboard"
+                        />
+                        {/* 🛠️ 2. New My Trips Link */}
+                        <UserButton.Link
+                            label="My Trips"
+                            labelIcon={<Map size={15} />}
+                            href="/my-trips"
+                        />
+                    </UserButton.MenuItems>
+                </UserButton>
+                
             </div>
         </header>
     );
