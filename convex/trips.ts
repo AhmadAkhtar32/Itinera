@@ -50,4 +50,5 @@ export const deleteTrip = mutation({
 
     await ctx.db.delete(args.id);
   },
+  
 });
