@@ -3,7 +3,7 @@ import React from 'react'
 import { useUser } from '@clerk/nextjs'
 import { useQuery, useMutation } from 'convex/react'
 import { api } from '@/convex/_generated/api'
-import { Users, Map, Activity, Trash2, Ban, ShieldCheck } from 'lucide-react'
+import { Users, Map, Activity, Trash2, Ban, ShieldCheck, TrendingUp } from 'lucide-react'
 
 // 🛠️ List all authorized admin emails here (Must match convex/admin.ts)
 const ADMIN_EMAILS = [
@@ -121,6 +121,29 @@ export default function SuperAdminDashboard() {
                         </div>
                         <p className="text-sm text-gray-500 font-medium">Avg Trips per User</p>
                         <h2 className="text-3xl font-bold text-gray-900">{dashboardData?.stats.avgTripsPerUser}</h2>
+                    </div>
+                </div>
+
+                {/* --- TRENDING DESTINATIONS (AI Analytics) --- */}
+                <div className="mb-12">
+                    <div className="flex items-center gap-2 mb-4">
+                        <TrendingUp size={20} className="text-blue-500" />
+                        <h2 className="font-bold text-2xl text-gray-900">Trending Destinations</h2>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                        {dashboardData?.topDestinations?.map((dest: any, index: number) => (
+                            <div key={index} className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                                <p className="text-xs font-bold text-blue-500 uppercase"># {index + 1}</p>
+                                <h3 className="font-bold text-gray-800 truncate">{dest.name}</h3>
+                                <p className="text-xs text-gray-500">{dest.count} trips</p>
+                                <div className="w-full bg-gray-100 h-1.5 mt-3 rounded-full overflow-hidden">
+                                    <div 
+                                        className="bg-blue-500 h-full rounded-full" 
+                                        style={{ width: `${(dest.count / (dashboardData.stats.totalTrips || 1)) * 100}%` }}
+                                    />
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
 

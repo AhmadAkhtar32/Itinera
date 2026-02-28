@@ -3,8 +3,8 @@ import { v } from "convex/values";
 
 // 🛠️ Authorized admin emails
 const ADMIN_EMAILS = [
-  "ahmadakhtar32@gmail.com", 
-  "secondadmin@gmail.com" 
+  "ahmadrao3226@gmail.com",     // First admin email
+  "ahsanabdullah2876@gmail.com" // Second admin email
 ];
 
 // Fetch Analytics, Trending Destinations, and User List
