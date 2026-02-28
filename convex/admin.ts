@@ -3,8 +3,8 @@ import { v } from "convex/values";
 
 // 🛠️ List all authorized admin emails here
 const ADMIN_EMAILS = [
-  "ahmadakhtar32@gmail.com", 
-  "secondadmin@gmail.com" // Add your second admin email here
+  "ahmadrao3226@gmail.com",     // First admin email
+  "ahsanabdullah2876@gmail.com" // Second admin email
 ];
 
 // Fetch Analytics and User List
