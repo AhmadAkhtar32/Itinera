@@ -106,7 +106,7 @@ function MyTripCardItem({ trip }: Props) {
             {/* 🛠️ Grouped Action Buttons overlaying the image */}
             <div className='absolute top-4 right-4 z-10 flex gap-2'>
                 {/* Favorite Button */}
-                <button
+                {/* <button
                     onClick={handleFavorite}
                     className='bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-md hover:bg-white transition-colors'
                     aria-label={trip.isFavorite ? "Remove from Favorites" : "Add to Favorites"}
@@ -115,25 +115,25 @@ function MyTripCardItem({ trip }: Props) {
                         size={18} 
                         className={trip.isFavorite ? "fill-red-500 text-red-500" : "text-gray-700"} 
                     />
-                </button>
+                </button> */}
 
                 {/* Share Button */}
-                <button
+                {/* <button
                     onClick={handleShareTrip}
                     className='bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-md hover:bg-white transition-colors'
                     aria-label="Share Trip"
                 >
                     <Share2 size={18} className="text-gray-700" />
-                </button>
+                </button> */}
 
                 {/* Delete Button (Only shows on hover to keep UI clean) */}
-                <button
+                {/* <button
                     onClick={handleDelete}
                     className='bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-md hover:bg-white transition-colors opacity-0 group-hover:opacity-100'
                     aria-label="Delete Trip"
                 >
                     <Trash2 size={18} className="text-red-500 hover:text-red-700" />
-                </button>
+                </button> */}
             </div>
 
             <div className="relative w-full h-[270px] overflow-hidden rounded-xl bg-gray-100">

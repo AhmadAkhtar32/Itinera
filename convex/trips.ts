@@ -1,4 +1,4 @@
-import { mutation } from "./_generated/server";
+import { mutation, query } from "./_generated/server"; // 🛠️ Added 'query' here
 import { v } from "convex/values";
 
 // Toggle the favorite status of a trip
@@ -50,5 +50,28 @@ export const deleteTrip = mutation({
 
     await ctx.db.delete(args.id);
   },
-  
+});
+
+// 🛠️ NEW: Fetch all trips for the Dashboard
+export const getUserTrips = query({
+  args: { 
+    userEmail: v.string() 
+  },
+  handler: async (ctx, args) => {
+    // 1. Find the user in the Usertable
+    const user = await ctx.db.query("Usertable")
+      .filter(q => q.eq(q.field("email"), args.userEmail))
+      .first();
+
+    // If the user doesn't exist yet, return an empty array
+    if (!user) return [];
+
+    // 2. Fetch all trips where the 'uid' matches this user's Convex ID
+    const trips = await ctx.db.query("TripDetailTable")
+      .filter(q => q.eq(q.field("uid"), user._id))
+      .order("desc")
+      .collect();
+
+    return trips;
+  }
 });
