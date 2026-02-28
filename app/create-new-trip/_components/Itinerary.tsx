@@ -221,7 +221,7 @@ const handleShareTrip = async (tripId: string) => {
             content: (
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                     {tripData?.hotels.map((hotel, index) => (
-                        <HotelCardItem hotel={hotel} />
+                        <HotelCardItem key={index} hotel={hotel} />
                     ))}
                 </div>
             ),

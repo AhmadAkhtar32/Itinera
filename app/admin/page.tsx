@@ -160,6 +160,9 @@ export default function SuperAdminDashboard() {
                                 <tr className="bg-gray-50/50">
                                     <th className="p-4 text-xs font-bold uppercase tracking-wider text-gray-500">User Details</th>
                                     <th className="p-4 text-xs font-bold uppercase tracking-wider text-gray-500">Email Address</th>
+                                    {/* 🛠️ NEW HEADERS */}
+                                    <th className="p-4 text-xs font-bold uppercase tracking-wider text-gray-500">Plan</th>
+                                    <th className="p-4 text-xs font-bold uppercase tracking-wider text-gray-500 text-center">Trips</th>
                                     <th className="p-4 text-xs font-bold uppercase tracking-wider text-gray-500">Database ID</th>
                                     <th className="p-4 text-xs font-bold uppercase tracking-wider text-gray-500 text-right">Actions</th>
                                 </tr>
@@ -167,6 +170,7 @@ export default function SuperAdminDashboard() {
                             <tbody>
                                 {dashboardData?.users.map((dbUser: any) => (
                                     <tr key={dbUser._id} className="border-b last:border-0 hover:bg-blue-50/30 transition-colors">
+                                        
                                         <td className="p-4">
                                             <div className="flex items-center gap-3">
                                                 <img 
@@ -177,12 +181,31 @@ export default function SuperAdminDashboard() {
                                                 <span className="font-semibold text-gray-900">{dbUser.name}</span>
                                             </div>
                                         </td>
+                                        
                                         <td className="p-4 text-gray-600 font-medium">{dbUser.email}</td>
+
+                                        {/* 🛠️ NEW: Subscription Tier Badge */}
+                                        <td className="p-4">
+                                            <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                                                dbUser.tier === 'Pro' 
+                                                ? 'bg-blue-100 text-blue-700 border border-blue-200' 
+                                                : 'bg-gray-100 text-gray-600 border border-gray-200'
+                                            }`}>
+                                                {dbUser.tier}
+                                            </span>
+                                        </td>
+
+                                        {/* 🛠️ NEW: Trip Count */}
+                                        <td className="p-4 text-center font-bold text-gray-900 text-lg">
+                                            {dbUser.tripCount}
+                                        </td>
+
                                         <td className="p-4">
                                             <span className="px-2 py-1 bg-gray-100 text-gray-500 text-[10px] font-mono rounded uppercase">
                                                 {dbUser._id}
                                             </span>
                                         </td>
+                                        
                                         <td className="p-4 text-right">
                                             <div className="flex justify-end gap-2">
                                                 <button 
@@ -194,6 +217,7 @@ export default function SuperAdminDashboard() {
                                                 </button>
                                             </div>
                                         </td>
+                                        
                                     </tr>
                                 ))}
                             </tbody>
