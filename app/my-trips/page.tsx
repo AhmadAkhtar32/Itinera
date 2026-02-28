@@ -15,6 +15,8 @@ export type Trip = {
     tripId: any,
     tripDetail: TripInfo,
     _id: string
+    // ... any other existing properties
+    isFavorite?: boolean; // Add this exact line! The '?' makes it optional.
 }
 
 function MyTrips() {

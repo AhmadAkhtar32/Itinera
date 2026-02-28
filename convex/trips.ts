@@ -3,43 +3,51 @@ import { v } from "convex/values";
 
 // Toggle the favorite status of a trip
 export const toggleFavorite = mutation({
-  // We use Convex's internal ID to find the exact row
-  args: { id: v.id("TripDetailTable"), isFavorite: v.boolean() },
+  args: { 
+    id: v.id("TripDetailTable"), 
+    isFavorite: v.boolean(), 
+    userEmail: v.string() // 🛠️ We pass the email from the frontend
+  },
   handler: async (ctx, args) => {
-    // 1. Check if user is logged into Clerk
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Unauthorized");
-
-    // 2. Fetch the trip to make sure it exists
     const trip = await ctx.db.get(args.id);
-    
-    // 3. Security check: Ensure the logged-in user owns this trip
-    if (!trip || trip.uid !== identity.subject) {
+    if (!trip) throw new Error("Trip not found");
+
+    // 1. Find the user in your Usertable using their email
+    const user = await ctx.db.query("Usertable")
+      .filter(q => q.eq(q.field("email"), args.userEmail))
+      .first();
+
+    // 2. The Bulletproof Check: Match trip.uid to the user's Convex _id
+    if (!user || trip.uid !== user._id) {
+      console.log("Auth Mismatch! Trip UID:", trip.uid, "User Convex ID:", user?._id);
       throw new Error("Unauthorized to edit this trip");
     }
 
-    // 4. Update the database
     await ctx.db.patch(args.id, { isFavorite: args.isFavorite });
   },
 });
 
 // Delete a trip completely
 export const deleteTrip = mutation({
-  args: { id: v.id("TripDetailTable") },
+  args: { 
+    id: v.id("TripDetailTable"), 
+    userEmail: v.string() 
+  },
   handler: async (ctx, args) => {
-    // 1. Check if user is logged into Clerk
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Unauthorized");
-
-    // 2. Fetch the trip
     const trip = await ctx.db.get(args.id);
-    
-    // 3. Security check: Ensure the logged-in user owns this trip
-    if (!trip || trip.uid !== identity.subject) {
+    if (!trip) throw new Error("Trip not found");
+
+    // 1. Find the user in your Usertable using their email
+    const user = await ctx.db.query("Usertable")
+      .filter(q => q.eq(q.field("email"), args.userEmail))
+      .first();
+
+    // 2. The Bulletproof Check: Match trip.uid to the user's Convex _id
+    if (!user || trip.uid !== user._id) {
+      console.log("Auth Mismatch! Trip UID:", trip.uid, "User Convex ID:", user?._id);
       throw new Error("Unauthorized to delete this trip");
     }
 
-    // 4. Delete from the database
     await ctx.db.delete(args.id);
   },
 });
