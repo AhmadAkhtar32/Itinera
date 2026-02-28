@@ -14,6 +14,9 @@ import { api } from '@/convex/_generated/api'
 import { userTripDetail, useUserDetail } from '@/app/provider'
 import { v4 as uuidv4 } from 'uuid'
 
+// 🛠️ 1. Import router and useUser
+import { useRouter } from 'next/navigation'
+import { useUser } from '@clerk/nextjs'
 
 type Message = {
     role: string,
@@ -65,22 +68,23 @@ type Itinerary = {
     activities: Activity[];
 };
 
-// 1. Interface definition (Correct)
 interface ChatBoxProps {
     setCoordinates: (coordinates: number[]) => void;
 }
 
-// 2. FIXED: Added destructuring here so 'setCoordinates' is available inside the function
 function ChatBox({ setCoordinates }: ChatBoxProps) {
-
     const [messages, setMessages] = useState<Message[]>([]);
     const [userInput, setUserInput] = useState<string>('');
     const [loading, setLoading] = useState(false);
     const [isFinal, setIsFinal] = useState(false);
     const [tripDetail, setTripDetail] = useState<TripInfo>();
+    
     const SaveTripDetail = useMutation(api.tripDetail.CreateTripDetail)
     const { userDetail, setUserDetail } = useUserDetail();
-
+    
+    // 🛠️ 2. Initialize router and Clerk user
+    const router = useRouter();
+    const { user } = useUser();
 
     // Auto-scroll ref
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -88,27 +92,23 @@ function ChatBox({ setCoordinates }: ChatBoxProps) {
     //@ts-ignore
     const { tripDetailInfo, setTripDetailInfo } = userTripDetail();
 
-    // Auto-scroll effect
     useEffect(() => {
         if (scrollRef.current) {
             scrollRef.current.scrollIntoView({ behavior: "smooth" });
         }
     }, [messages]);
 
-    // UPDATED: Now accepts an optional 'manualInput'
     const onSend = async (manualInput?: string) => {
-
-        // Use manualInput if provided (from buttons), otherwise use state (from text box)
         const msgContent = manualInput || userInput;
 
         if (!msgContent?.trim()) return;
 
         setLoading(true);
-        setUserInput(''); // Clear input
+        setUserInput(''); 
 
         const newMsg: Message = {
             role: 'user',
-            content: msgContent // Use the resolved content
+            content: msgContent 
         }
 
         setMessages((prev: Message[]) => [...prev, newMsg]);
@@ -119,8 +119,6 @@ function ChatBox({ setCoordinates }: ChatBoxProps) {
                 isFinal: isFinal
             });
 
-            console.log("AI RESPONSE FULL DATA:", result.data); // DEBUG LOG
-
             !isFinal && setMessages((prev: Message[]) => [...prev, {
                 role: 'assistant',
                 content: result?.data?.resp,
@@ -128,19 +126,14 @@ function ChatBox({ setCoordinates }: ChatBoxProps) {
             }]);
 
             if (isFinal) {
-                // --- FIX STARTS HERE ---
-                // We extract the plan first to check if it exists
                 const tripPlanData = result?.data?.trip_plan;
 
                 if (tripPlanData) {
                     setTripDetail(tripPlanData);
                     setTripDetailInfo(tripPlanData);
 
-                    // 3. LOGIC TO CENTER MAP
-                    // We grab the coordinates from the first hotel to center the map
                     if (tripPlanData.hotels && tripPlanData.hotels.length > 0) {
                         const firstHotel = tripPlanData.hotels[0];
-                        // Mapbox expects [Longitude, Latitude]
                         setCoordinates([
                             firstHotel.geo_coordinates.longitude,
                             firstHotel.geo_coordinates.latitude
@@ -149,48 +142,45 @@ function ChatBox({ setCoordinates }: ChatBoxProps) {
 
                     const tripId = uuidv4();
 
-                    // Only save if we have the data
+                    // 🛠️ 3. Save trip with userEmail included!
                     await SaveTripDetail({
                         tripDetail: tripPlanData,
                         tripId: tripId,
-                        uid: userDetail?._id
+                        uid: userDetail?._id,
+                        userEmail: user?.primaryEmailAddress?.emailAddress ?? "" // IMPORTANT!
                     });
-                } else {
-                    console.error("ERROR: 'trip_plan' is missing in the API response. Cannot save to Convex.");
-                    console.log("Received Data Structure:", result.data);
-                    // You might want to show an error toast here
                 }
-                // --- FIX ENDS HERE ---
             }
-        } catch (error) {
+        } catch (error: any) {
+            // 🛠️ 4. Catch insufficient credits and redirect
             console.error("Error sending message:", error);
+            
+            // Check if the error from Convex contains our specific block phrase
+            if (error.message?.includes("INSUFFICIENT_CREDITS") || String(error).includes("INSUFFICIENT_CREDITS")) {
+                alert("You have run out of free trips! Redirecting to pricing...");
+                router.push('/pricing');
+            } else {
+                alert("Something went wrong while generating your trip.");
+            }
         } finally {
             setLoading(false);
         }
     }
 
-    // UPDATED: Passes 'v' directly to onSend(v)
     const RenderGenerativeUi = (ui: string) => {
         if (ui == 'budget') {
-            // Budget Ui Component - NOW HANDLES NUMERIC INPUT
-            // Ensure BudgetUi passes the string value (e.g., "$500") to onSelectedOption
             return <BudgetUi onSelectedOption={(v: string) => {
-                // We do NOT set userInput here to avoid double-state issues
-                // We just fire onSend directly with the value
                 onSend(v);
             }} />
         } else if (ui == 'groupSize') {
-            // Group Size Ui Component
             return <GroupSizeUi onSelectedOption={(v: string) => {
                 onSend(v);
             }} />
         } else if (ui == 'tripDuration') {
-            // Duration Ui Component
             return <SelectDays onSelectedOption={(v: string) => {
                 onSend(v);
             }} />
         } else if (ui == 'final') {
-            // Final Ui Component
             return <FinalUi viewTrip={() => console.log()}
                 disable={!tripDetail}
             />
@@ -202,25 +192,21 @@ function ChatBox({ setCoordinates }: ChatBoxProps) {
         const lastMsg = messages[messages.length - 1];
         if (lastMsg?.ui == 'final') {
             setIsFinal(true);
-            // We set the input to "Ok, Great!" to trigger the final fetch automatically
             setUserInput('Ok, Great !');
         }
     }, [messages])
 
     useEffect(() => {
-        // Trigger the final call only when isFinal is true AND the "Ok, Great!" text is staged
         if (isFinal && userInput == 'Ok, Great !') {
             onSend();
         }
     }, [isFinal, userInput]);
-
 
     return (
         <div className='h-[80vh] flex flex-col border shadow rounded-2xl p-5'>
             {messages?.length == 0 &&
                 <EmptyBoxState onSelectOption={(v: string) => { setUserInput(v); onSend(v) }} />
             }
-            {/* Display Messages */}
             <section className='flex-1 overflow-y-auto p-4'>
                 {messages.map((msg: Message, index) => (
                     <div key={index}>
@@ -234,7 +220,6 @@ function ChatBox({ setCoordinates }: ChatBoxProps) {
                             <div className='flex justify-start mt-2'>
                                 <div className='max-w-lg bg-gray-200 text-black px-4 py-2 rounded-lg'>
                                     {msg.content}
-                                    {/* Generative UI renders INSIDE the assistant bubble */}
                                     <div className="mt-2">
                                         {RenderGenerativeUi(msg.ui ?? '')}
                                     </div>
@@ -252,11 +237,9 @@ function ChatBox({ setCoordinates }: ChatBoxProps) {
                         </div>
                     </div>
                 )}
-                {/* Scroll Anchor */}
                 <div ref={scrollRef} />
             </section>
 
-            {/* User Input */}
             <section>
                 <div className='border rounded-2xl p-4 shadow relative'>
                     <Textarea

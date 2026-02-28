@@ -3,11 +3,12 @@
 import React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
+// 🛠️ 1. Imported SignedIn and SignedOut
+import { SignInButton, UserButton, useUser, SignedIn, SignedOut } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, Map, ShieldAlert } from "lucide-react";
 
-// 🛠️ 1. Define authorized admin emails (Must match admin.ts and admin/page.tsx)
+// 🛠️ Define authorized admin emails
 const ADMIN_EMAILS = [
     "ahmadrao3226@gmail.com",     // First admin email
   "ahsanabdullah2876@gmail.com" // Second admin email
@@ -23,7 +24,7 @@ export default function Header() {
     const { user } = useUser();
     const path = usePathname();
     
-    // 🛠️ 2. Logic to check if the current user is an admin
+    // Logic to check if the current user is an admin
     const userEmail = user?.primaryEmailAddress?.emailAddress ?? "";
     const isAdmin = ADMIN_EMAILS.includes(userEmail);
 
@@ -54,52 +55,55 @@ export default function Header() {
 
             {/* Action Buttons */}
             <div className="flex gap-5 items-center">
-                {!user ? (
+                
+                {/* 🛠️ 2. Safe wrap for logged-out users */}
+                <SignedOut>
                     <SignInButton mode="modal">
                         <Button>Get Started</Button>
                     </SignInButton>
-                ) : (
-                    <>
-                        {/* 🛠️ 3. Conditional Admin Button (Shows in main header ONLY for admins) */}
-                        {isAdmin && (
-                            <Link href="/admin">
-                                <Button variant="outline" className="border-red-200 text-red-600 hover:bg-red-50 flex gap-2">
-                                    <ShieldAlert size={16} />
-                                    Admin Panel
-                                </Button>
-                            </Link>
-                        )}
+                </SignedOut>
 
-                        <Link href={path === '/create-new-trip' ? '/my-trips' : '/create-new-trip'}>
-                            <Button>
-                                {path === '/create-new-trip' ? 'My Trips' : 'Create New Trip'}
+                {/* 🛠️ 3. Safe wrap for logged-in users */}
+                <SignedIn>
+                    {isAdmin && (
+                        <Link href="/admin">
+                            <Button variant="outline" className="border-red-200 text-red-600 hover:bg-red-50 flex gap-2">
+                                <ShieldAlert size={16} />
+                                Admin Panel
                             </Button>
                         </Link>
-                    </>
-                )}
-                
-                <UserButton>
-                    <UserButton.MenuItems>
-                        <UserButton.Link
-                            label="Dashboard"
-                            labelIcon={<LayoutDashboard size={15} />}
-                            href="/dashboard"
-                        />
-                        <UserButton.Link
-                            label="My Trips"
-                            labelIcon={<Map size={15} />}
-                            href="/my-trips"
-                        />
-                        {/* 🛠️ 4. Conditional Link inside the Profile Dropdown */}
-                        {isAdmin && (
+                    )}
+
+                    <Link href={path === '/create-new-trip' ? '/my-trips' : '/create-new-trip'}>
+                        <Button>
+                            {path === '/create-new-trip' ? 'My Trips' : 'Create New Trip'}
+                        </Button>
+                    </Link>
+                    
+                    {/* Notice how UserButton is now safely inside the SignedIn block! */}
+                    <UserButton>
+                        <UserButton.MenuItems>
                             <UserButton.Link
-                                label="Admin Portal"
-                                labelIcon={<ShieldAlert size={15} className="text-red-500" />}
-                                href="/admin"
+                                label="Dashboard"
+                                labelIcon={<LayoutDashboard size={15} />}
+                                href="/dashboard"
                             />
-                        )}
-                    </UserButton.MenuItems>
-                </UserButton>
+                            <UserButton.Link
+                                label="My Trips"
+                                labelIcon={<Map size={15} />}
+                                href="/my-trips"
+                            />
+                            {isAdmin && (
+                                <UserButton.Link
+                                    label="Admin Portal"
+                                    labelIcon={<ShieldAlert size={15} className="text-red-500" />}
+                                    href="/admin"
+                                />
+                            )}
+                        </UserButton.MenuItems>
+                    </UserButton>
+                </SignedIn>
+                
             </div>
         </header>
     );

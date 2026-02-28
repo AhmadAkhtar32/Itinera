@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from 'openai';
-import { aj } from "../arcjet/route";
-import { auth, currentUser } from "@clerk/nextjs/server";
 
 // 1. Azure/GitHub Models Configuration
 export const openai = new OpenAI({
@@ -44,7 +42,6 @@ Return a single JSON object:
 }
 `;
 
-
 // ============================================================================
 // PROMPT 2: FINAL GENERATOR (Creates the Plan)
 // ============================================================================
@@ -80,19 +77,17 @@ Return a **Strict JSON** object following this schema.
         "geo_coordinates": { "latitude": 0, "longitude": 0 },
         "rating": 4.5,
         "description": "string"
-      },
-      { "hotel_name": "Option 2..." },
-      { "hotel_name": "Option 3..." }
+      }
     ],
     "itinerary": [
       {
         "day": 1,
-        "day_plan": "Full Day Title (e.g., 'Historical Tour & Nightlife')",
+        "day_plan": "Full Day Title",
         "best_time_to_visit_day": "All Day",
         "activities": [
           {
-            "place_name": "Morning Activity Name",
-            "place_details": "Description of what to do here",
+            "place_name": "Activity Name",
+            "place_details": "Description",
             "place_image_url": "string",
             "geo_coordinates": { "latitude": 0, "longitude": 0 },
             "place_address": "string",
@@ -100,12 +95,7 @@ Return a **Strict JSON** object following this schema.
             "time_travel_each_location": "string",
             "best_time_to_visit": "Morning"
           }
-          // Include Afternoon and Evening activities here
         ]
-      },
-      {
-        "day": 2,
-        "day_plan": "Continue generating for EVERY SINGLE DAY of the requested duration..."
       }
     ]
   }
@@ -116,21 +106,13 @@ Return a **Strict JSON** object following this schema.
 // API ROUTE HANDLER
 // ============================================================================
 export async function POST(req: NextRequest) {
-  // We expect 'isFinal' to be sent from the frontend when the user says "Yes, generate plan"
   const { messages, isFinal } = await req.json();
-  const user = await currentUser();
-  const { has } = await auth();
-  const hasPremiumAccess = has({ plan: 'monthly' });
-  console.log("hasPremiumAccess", hasPremiumAccess)
-  const decision = await aj.protect(req, { userId: user?.primaryEmailAddress?.emailAddress ?? '', requested: isFinal ? 5 : 0 });
 
-  //@ts-ignore
-  if (decision?.reason?.remaining == 0 && !hasPremiumAccess) {
-    return NextResponse.json({
-      resp: 'Your Daily Limit reached(No Free Credit remaining) !',
-      ui: 'limit'
-    })
-  }
+  // 🛠️ 1. Clean the messages array! OpenAi rejects custom properties like 'ui'
+  const cleanMessages = messages.map((m: any) => ({
+    role: m.role,
+    content: m.content
+  }));
 
   try {
     const completion = await openai.chat.completions.create({
@@ -138,33 +120,25 @@ export async function POST(req: NextRequest) {
       messages: [
         {
           role: 'system',
-          // Dynamically switch prompt based on 'isFinal' flag
           content: isFinal ? FINAL_PROMPT : PROMPT
         },
-        ...messages
+        ...cleanMessages // Pass the cleaned messages here
       ],
-      // Force JSON mode
       response_format: { type: 'json_object' },
       temperature: 0.7,
-      // 🛠️ FIX 1: Increase token limit significantly. 
-      // A full itinerary + 3 hotels uses a lot of tokens. If this is too low, the JSON cuts off.
-      max_tokens: 8000,
+      max_tokens: 4096, // Standard safe limit for GitHub/Azure endpoints
     });
 
     let messageContent = completion.choices[0].message.content;
 
-    // Debugging log
     console.log("AI Raw Response (isFinal: " + isFinal + "):", messageContent);
 
     if (!messageContent) {
       throw new Error("No content received from AI");
     }
 
-    // 🛠️ FIX 2: Sanitize the output before parsing
-    // Sometimes AI adds ```json at the start even in JSON mode. We must remove it.
     messageContent = messageContent.replace(/```json/g, "").replace(/```/g, "").trim();
 
-    // 🛠️ FIX 3: Safe Parsing
     try {
       const parsedData = JSON.parse(messageContent);
       return NextResponse.json(parsedData);

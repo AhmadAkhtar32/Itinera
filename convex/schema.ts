@@ -15,6 +15,7 @@ export default defineSchema({
         tripId: v.string(),
         tripDetail: v.any(),
         uid: v.string(),
+        userEmail: v.optional(v.string()), // 🛠️ ADD THIS LINE
         isFavorite: v.optional(v.boolean()), // Added for favorites
     }),
 });

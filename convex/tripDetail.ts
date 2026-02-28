@@ -42,6 +42,7 @@ export const CreateTripDetail = mutation({
             tripDetail: args.tripDetail,
             tripId: args.tripId,
             uid: args.uid,
+            userEmail: args.userEmail, // 🛠️ ADD THIS LINE to link the trip to the email!
         });
 
         return result;
