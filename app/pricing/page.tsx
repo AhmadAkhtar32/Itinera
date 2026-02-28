@@ -11,7 +11,7 @@ export default function PricingPage() {
     const [loading, setLoading] = useState(false);
 
     // Initialize our new upgrade mutation
-    const upgradeUser = useMutation(api.users.verifyLocalPayment); // Adjust path if your mutation is in a different file
+    const upgradeUser = useMutation(api.user.verifyLocalPayment); // Adjust path if your mutation is in a different file
 
     const handleUpgrade = async () => {
         if (!tid || tid.length < 10) {
