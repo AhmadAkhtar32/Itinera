@@ -16,6 +16,7 @@ import {
   Map,
   ShieldAlert,
   Building2,
+  ShoppingBag,
 } from "lucide-react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -43,11 +44,11 @@ export default function Header() {
 
   return (
     <header className="flex items-center justify-between px-6 py-4 border-b bg-white">
-      {/* LOGO */}
+      {/* Logo */}
       <Link href="/" className="flex items-center gap-3">
         <img
           src="/logo.svg"
-          alt="logo"
+          alt="Itinera logo"
           className="w-10 h-10 object-contain"
         />
         <h2 className="font-bold text-lg hover:scale-105 transition-all cursor-pointer">
@@ -126,6 +127,12 @@ export default function Header() {
                 label="My Trips"
                 labelIcon={<Map size={15} />}
                 href="/my-trips"
+              />
+
+              <UserButton.Link
+                label="My Bookings"
+                labelIcon={<ShoppingBag size={15} />}
+                href="/my-bookings"
               />
 
               {isPartner && (
