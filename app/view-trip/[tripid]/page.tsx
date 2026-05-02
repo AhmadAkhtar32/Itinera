@@ -1,15 +1,19 @@
 "use client";
 
+import React, { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useQuery } from "convex/react";
+import { FileDown } from "lucide-react";
+
 import GlobalMap from "@/app/create-new-trip/_components/GlobalMap";
 import Itinerary from "@/app/create-new-trip/_components/Itinerary";
+import WeatherPackingPanel from "@/app/view-trip/_components/WeatherPackingPanel";
+
 import { Trip } from "@/app/my-trips/page";
 import { userTripDetail } from "@/app/provider";
 import { api } from "@/convex/_generated/api";
-import { useQuery } from "convex/react";
-import { useParams } from "next/navigation";
-import React, { useEffect, useMemo, useState } from "react";
-import WeatherPackingPanel from "@/app/view-trip/_components/WeatherPackingPanel";
-
+import { Button } from "@/components/ui/button";
 
 function ViewTrip() {
   const params = useParams();
@@ -31,26 +35,22 @@ function ViewTrip() {
 
   const [mapCoordinates, setMapCoordinates] = useState<number[]>([]);
 
-  // @ts-ignore
-  const { setTripDetailInfo } = userTripDetail();
+  const tripContext = userTripDetail();
 
   useEffect(() => {
     if (!tripData?.tripDetail) return;
 
-    setTripDetailInfo(tripData.tripDetail);
+    tripContext?.setTripDetailInfo(tripData.tripDetail);
 
     const firstHotel = tripData.tripDetail.hotels?.[0];
 
-    if (
-      firstHotel?.geo_coordinates?.longitude &&
-      firstHotel?.geo_coordinates?.latitude
-    ) {
-      setMapCoordinates([
-        firstHotel.geo_coordinates.longitude,
-        firstHotel.geo_coordinates.latitude,
-      ]);
+    const longitude = firstHotel?.geo_coordinates?.longitude;
+    const latitude = firstHotel?.geo_coordinates?.latitude;
+
+    if (typeof longitude === "number" && typeof latitude === "number") {
+      setMapCoordinates([longitude, latitude]);
     }
-  }, [tripData, setTripDetailInfo]);
+  }, [tripData, tripContext]);
 
   if (tripData === undefined) {
     return (
@@ -77,17 +77,28 @@ function ViewTrip() {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-5">
-      <div className="lg:col-span-3">
-  <Itinerary />
+    <div>
+      <div className="px-5 py-4 border-b bg-white flex justify-end">
+        <Link href={`/travel-report/${tripid}`}>
+          <Button>
+            <FileDown className="mr-2" size={16} />
+            Export Travel Report
+          </Button>
+        </Link>
+      </div>
 
-  <div className="px-5 pb-8">
-    <WeatherPackingPanel tripDetail={tripData.tripDetail} />
-  </div>
-</div>
+      <div className="grid grid-cols-1 lg:grid-cols-5">
+        <div className="lg:col-span-3">
+          <Itinerary />
 
-      <div className="lg:col-span-2">
-        <GlobalMap coordinates={mapCoordinates} />
+          <div className="px-5 pb-8">
+            <WeatherPackingPanel tripDetail={tripData.tripDetail} />
+          </div>
+        </div>
+
+        <div className="lg:col-span-2">
+          <GlobalMap coordinates={mapCoordinates} />
+        </div>
       </div>
     </div>
   );
