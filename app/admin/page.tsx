@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -13,7 +14,6 @@ import {
   ShieldCheck,
   TrendingUp,
 } from "lucide-react";
-import Link from "next/link";
 
 export default function SuperAdminDashboard() {
   const { isLoaded, isSignedIn } = useUser();
@@ -32,7 +32,11 @@ export default function SuperAdminDashboard() {
 
   const deleteUser = useMutation(api.admin.deleteUserAccount);
 
-  if (!isLoaded || currentUser === undefined || (isAdmin && dashboardData === undefined)) {
+  if (
+    !isLoaded ||
+    currentUser === undefined ||
+    (isAdmin && dashboardData === undefined)
+  ) {
     return (
       <div className="flex h-screen flex-col items-center justify-center gap-4">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -52,12 +56,11 @@ export default function SuperAdminDashboard() {
           <p className="text-gray-600 mt-4 leading-relaxed">
             This area is restricted to system administrators only.
           </p>
-          <button
-            onClick={() => (window.location.href = "/")}
-            className="mt-6 px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-all"
-          >
-            Return Home
-          </button>
+          <Link href="/">
+            <button className="mt-6 px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-all">
+              Return Home
+            </button>
+          </Link>
         </div>
       </div>
     );
@@ -94,6 +97,7 @@ export default function SuperAdminDashboard() {
                 Admin Control Panel
               </span>
             </div>
+
             <h1 className="font-bold text-4xl text-gray-900">
               Platform Analytics
             </h1>
@@ -104,37 +108,59 @@ export default function SuperAdminDashboard() {
             <p className="font-medium text-gray-900">{currentUser.email}</p>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-  <Link
-    href="/admin/applications"
-    className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all"
-  >
-    <h3 className="font-bold text-gray-900">Partner Applications</h3>
-    <p className="text-sm text-gray-500 mt-1">
-      Review agency and collaborator requests.
-    </p>
-  </Link>
 
-  <Link
-    href="/admin/partners"
-    className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all"
-  >
-    <h3 className="font-bold text-gray-900">Partners</h3>
-    <p className="text-sm text-gray-500 mt-1">
-      Manage approved agencies and collaborators.
-    </p>
-  </Link>
+        {/* Admin Module Shortcuts */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+          <Link
+            href="/admin/applications"
+            className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all"
+          >
+            <h3 className="font-bold text-gray-900">Partner Applications</h3>
+            <p className="text-sm text-gray-500 mt-1">
+              Approve or reject agencies and collaborators.
+            </p>
+          </Link>
 
-  <Link
-    href="/admin/analytics"
-    className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all"
-  >
-    <h3 className="font-bold text-gray-900">Advanced Analytics</h3>
-    <p className="text-sm text-gray-500 mt-1">
-      View revenue, bookings, and marketplace stats.
-    </p>
-  </Link>
-</div>
+          <Link
+            href="/admin/partners"
+            className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all"
+          >
+            <h3 className="font-bold text-gray-900">Partners</h3>
+            <p className="text-sm text-gray-500 mt-1">
+              Manage approved partners.
+            </p>
+          </Link>
+
+          <Link
+            href="/admin/packages"
+            className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all"
+          >
+            <h3 className="font-bold text-gray-900">Agency Packages</h3>
+            <p className="text-sm text-gray-500 mt-1">
+              Review and publish agency packages.
+            </p>
+          </Link>
+
+          <Link
+            href="/admin/plans"
+            className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all"
+          >
+            <h3 className="font-bold text-gray-900">Collaborator Plans</h3>
+            <p className="text-sm text-gray-500 mt-1">
+              Review and publish paid travel plans.
+            </p>
+          </Link>
+
+          <Link
+            href="/admin/analytics"
+            className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all"
+          >
+            <h3 className="font-bold text-gray-900">Advanced Analytics</h3>
+            <p className="text-sm text-gray-500 mt-1">
+              Revenue, marketplace, and AI stats.
+            </p>
+          </Link>
+        </div>
 
         {/* Platform Analytics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
@@ -192,32 +218,35 @@ export default function SuperAdminDashboard() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            {dashboardData?.topDestinations?.map((dest: any, index: number) => (
-              <div
-                key={index}
-                className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm"
-              >
-                <p className="text-xs font-bold text-blue-500 uppercase">
-                  # {index + 1}
-                </p>
-                <h3 className="font-bold text-gray-800 truncate">
-                  {dest.name}
-                </h3>
-                <p className="text-xs text-gray-500">{dest.count} trips</p>
+            {dashboardData?.topDestinations?.map(
+              (dest: any, index: number) => (
+                <div
+                  key={index}
+                  className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm"
+                >
+                  <p className="text-xs font-bold text-blue-500 uppercase">
+                    # {index + 1}
+                  </p>
+                  <h3 className="font-bold text-gray-800 truncate">
+                    {dest.name}
+                  </h3>
+                  <p className="text-xs text-gray-500">{dest.count} trips</p>
 
-                <div className="w-full bg-gray-100 h-1.5 mt-3 rounded-full overflow-hidden">
-                  <div
-                    className="bg-blue-500 h-full rounded-full"
-                    style={{
-                      width: `${
-                        (dest.count / (dashboardData.stats.totalTrips || 1)) *
-                        100
-                      }%`,
-                    }}
-                  />
+                  <div className="w-full bg-gray-100 h-1.5 mt-3 rounded-full overflow-hidden">
+                    <div
+                      className="bg-blue-500 h-full rounded-full"
+                      style={{
+                        width: `${
+                          (dest.count /
+                            (dashboardData.stats.totalTrips || 1)) *
+                          100
+                        }%`,
+                      }}
+                    />
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            )}
           </div>
         </div>
 
@@ -291,7 +320,11 @@ export default function SuperAdminDashboard() {
                         className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
                           dbUser.role === "admin"
                             ? "bg-red-50 text-red-700 border-red-200"
-                            : "bg-slate-100 text-slate-600 border-slate-200"
+                            : dbUser.role === "agency"
+                              ? "bg-indigo-50 text-indigo-700 border-indigo-200"
+                              : dbUser.role === "collaborator"
+                                ? "bg-orange-50 text-orange-700 border-orange-200"
+                                : "bg-slate-100 text-slate-600 border-slate-200"
                         }`}
                       >
                         {dbUser.role ?? "user"}
@@ -339,10 +372,7 @@ export default function SuperAdminDashboard() {
 
                 {dashboardData?.users?.length === 0 && (
                   <tr>
-                    <td
-                      colSpan={7}
-                      className="p-8 text-center text-gray-500"
-                    >
+                    <td colSpan={7} className="p-8 text-center text-gray-500">
                       No users found.
                     </td>
                   </tr>
@@ -351,6 +381,11 @@ export default function SuperAdminDashboard() {
             </table>
           </div>
         </div>
+
+        <p className="text-xs text-gray-400 mt-6">
+          Note: Collaborator Plans and Advanced Analytics pages will be created
+          in the next steps.
+        </p>
       </div>
     </div>
   );
