@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
+import PublicReviews from "../../_components/PublicReviews";
 import {
   ArrowLeft,
   CalendarDays,
@@ -59,6 +60,7 @@ export default function PlanDetailPage() {
   }
 
   const tags = Array.isArray(planData.tags) ? planData.tags : [];
+
   const lockedPlanLines = Array.isArray(planData.fullPlan)
     ? planData.fullPlan
     : [];
@@ -208,6 +210,8 @@ export default function PlanDetailPage() {
                 </ul>
               </div>
             </div>
+
+            <PublicReviews productType="plan" productId={planData._id} />
           </div>
 
           {/* Right purchase card */}

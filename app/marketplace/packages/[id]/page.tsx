@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
+import PublicReviews from "../../_components/PublicReviews";
 import {
   ArrowLeft,
   Building2,
@@ -87,7 +88,6 @@ export default function PackageDetailPage() {
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left content */}
           <div className="lg:col-span-2 space-y-8">
             <div className="bg-white border border-gray-100 rounded-3xl shadow-sm overflow-hidden">
               <div className="h-[360px] bg-indigo-50 overflow-hidden">
@@ -143,7 +143,10 @@ export default function PackageDetailPage() {
                   )}
 
                   <div className="flex items-center gap-2">
-                    <Star size={18} className="text-yellow-500 fill-yellow-500" />
+                    <Star
+                      size={18}
+                      className="text-yellow-500 fill-yellow-500"
+                    />
                     <span>
                       {packageData.ratingAvg ?? 0} / 5 (
                       {packageData.ratingCount ?? 0} reviews)
@@ -205,17 +208,9 @@ export default function PackageDetailPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <ListCard
-                title="Inclusions"
-                type="include"
-                items={inclusions}
-              />
+              <ListCard title="Inclusions" type="include" items={inclusions} />
 
-              <ListCard
-                title="Exclusions"
-                type="exclude"
-                items={exclusions}
-              />
+              <ListCard title="Exclusions" type="exclude" items={exclusions} />
             </div>
 
             {packageData.terms && (
@@ -228,9 +223,10 @@ export default function PackageDetailPage() {
                 </p>
               </div>
             )}
+
+            <PublicReviews productType="package" productId={packageData._id} />
           </div>
 
-          {/* Right booking card */}
           <aside className="lg:col-span-1">
             <div className="bg-white border border-gray-100 rounded-3xl shadow-sm p-6 sticky top-24">
               <div className="border-b border-gray-100 pb-5 mb-5">
