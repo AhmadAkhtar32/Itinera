@@ -8,6 +8,8 @@ import { api } from "@/convex/_generated/api";
 import { useQuery } from "convex/react";
 import { useParams } from "next/navigation";
 import React, { useEffect, useMemo, useState } from "react";
+import WeatherPackingPanel from "@/app/view-trip/_components/WeatherPackingPanel";
+
 
 function ViewTrip() {
   const params = useParams();
@@ -77,8 +79,12 @@ function ViewTrip() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-5">
       <div className="lg:col-span-3">
-        <Itinerary />
-      </div>
+  <Itinerary />
+
+  <div className="px-5 pb-8">
+    <WeatherPackingPanel tripDetail={tripData.tripDetail} />
+  </div>
+</div>
 
       <div className="lg:col-span-2">
         <GlobalMap coordinates={mapCoordinates} />
