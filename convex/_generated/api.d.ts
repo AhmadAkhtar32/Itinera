@@ -13,6 +13,7 @@ import type * as authHelpers from "../authHelpers.js";
 import type * as marketplace from "../marketplace.js";
 import type * as orders from "../orders.js";
 import type * as partners from "../partners.js";
+import type * as reviews from "../reviews.js";
 import type * as tripDetail from "../tripDetail.js";
 import type * as trips from "../trips.js";
 import type * as user from "../user.js";
@@ -29,6 +30,7 @@ declare const fullApi: ApiFromModules<{
   marketplace: typeof marketplace;
   orders: typeof orders;
   partners: typeof partners;
+  reviews: typeof reviews;
   tripDetail: typeof tripDetail;
   trips: typeof trips;
   user: typeof user;

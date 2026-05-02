@@ -1,11 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { SignInButton, useUser } from "@clerk/nextjs";
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Building2,
   CalendarDays,
@@ -17,6 +18,7 @@ import {
   PenLine,
   Receipt,
   ShoppingBag,
+  Star,
 } from "lucide-react";
 
 export default function MyBookingsPage() {
@@ -197,7 +199,7 @@ function OrderCard({ order }: { order: any }) {
       </div>
 
       <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 space-y-5">
           {isPackage ? (
             <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-5">
               <h3 className="font-bold text-indigo-900">
@@ -246,6 +248,8 @@ function OrderCard({ order }: { order: any }) {
               )}
             </div>
           )}
+
+          <ReviewBox order={order} />
         </div>
 
         <div className="space-y-3">
@@ -271,6 +275,143 @@ function OrderCard({ order }: { order: any }) {
             </Button>
           </Link>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function ReviewBox({ order }: { order: any }) {
+  const existingReview = useQuery(api.reviews.getMyReviewForOrder, {
+    orderId: order._id as any,
+  });
+
+  const createReview = useMutation(api.reviews.createReview);
+
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmitReview = async () => {
+    if (!comment.trim() || comment.trim().length < 10) {
+      alert("Please write at least 10 characters.");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+
+      await createReview({
+        orderId: order._id as any,
+        rating,
+        comment,
+      });
+
+      alert("Review submitted successfully.");
+      setComment("");
+      setRating(5);
+    } catch (error: any) {
+      console.error("Review submission failed:", error);
+      alert(error?.message || "Failed to submit review.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (existingReview === undefined) {
+    return (
+      <div className="bg-gray-50 border border-gray-100 rounded-2xl p-5">
+        <p className="text-gray-500 text-sm">Checking review status...</p>
+      </div>
+    );
+  }
+
+  if (existingReview) {
+    return (
+      <div className="bg-green-50 border border-green-100 rounded-2xl p-5">
+        <div className="flex items-center gap-2 mb-2">
+          <CheckCircle2 className="text-green-600" size={20} />
+          <h3 className="font-bold text-green-900">Review Submitted</h3>
+        </div>
+
+        <div className="flex items-center gap-1 mb-3">
+          {Array.from({ length: 5 }).map((_, index) => (
+            <Star
+              key={index}
+              size={18}
+              className={
+                index < existingReview.rating
+                  ? "text-yellow-500 fill-yellow-500"
+                  : "text-gray-300"
+              }
+            />
+          ))}
+        </div>
+
+        <p className="text-green-800 text-sm leading-relaxed">
+          {existingReview.comment}
+        </p>
+
+        <p className="text-xs text-green-700 mt-3 capitalize">
+          Status: {existingReview.status}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white border border-gray-100 rounded-2xl p-5">
+      <div className="flex items-center gap-2 mb-3">
+        <Star className="text-yellow-500 fill-yellow-500" size={20} />
+        <h3 className="font-bold text-gray-900">Leave a Review</h3>
+      </div>
+
+      <p className="text-sm text-gray-500 mb-4">
+        Rate your experience with this{" "}
+        {order.productType === "agency_package" ? "agency package" : "paid plan"}.
+      </p>
+
+      <div className="flex items-center gap-2 mb-4">
+        {Array.from({ length: 5 }).map((_, index) => {
+          const starValue = index + 1;
+
+          return (
+            <button
+              key={starValue}
+              type="button"
+              onClick={() => setRating(starValue)}
+              className="transition-transform hover:scale-110"
+            >
+              <Star
+                size={28}
+                className={
+                  starValue <= rating
+                    ? "text-yellow-500 fill-yellow-500"
+                    : "text-gray-300"
+                }
+              />
+            </button>
+          );
+        })}
+      </div>
+
+      <Textarea
+        value={comment}
+        onChange={(e) => setComment(e.target.value)}
+        placeholder="Write your review..."
+        className="min-h-[120px] resize-none"
+      />
+
+      <div className="flex justify-end mt-4">
+        <Button onClick={handleSubmitReview} disabled={submitting}>
+          {submitting ? (
+            <>
+              <Loader2 className="animate-spin mr-2" size={16} />
+              Submitting...
+            </>
+          ) : (
+            "Submit Review"
+          )}
+        </Button>
       </div>
     </div>
   );
