@@ -11,7 +11,12 @@ import {
   SignedOut,
 } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Map, ShieldAlert } from "lucide-react";
+import {
+  LayoutDashboard,
+  Map,
+  ShieldAlert,
+  Building2,
+} from "lucide-react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
@@ -32,6 +37,8 @@ export default function Header() {
   );
 
   const isAdmin = currentUser?.role === "admin";
+  const isPartner =
+    currentUser?.role === "agency" || currentUser?.role === "collaborator";
 
   return (
     <header className="flex items-center justify-between px-6 py-4 border-b bg-white">
@@ -64,7 +71,7 @@ export default function Header() {
       </nav>
 
       {/* Action Buttons */}
-      <div className="flex gap-5 items-center">
+      <div className="flex gap-4 items-center">
         <SignedOut>
           <SignInButton mode="modal">
             <Button>Get Started</Button>
@@ -72,6 +79,18 @@ export default function Header() {
         </SignedOut>
 
         <SignedIn>
+          {isPartner && (
+            <Link href="/partner/dashboard">
+              <Button
+                variant="outline"
+                className="border-blue-200 text-blue-600 hover:bg-blue-50 flex gap-2"
+              >
+                <Building2 size={16} />
+                Partner Portal
+              </Button>
+            </Link>
+          )}
+
           {isAdmin && (
             <Link href="/admin">
               <Button
@@ -85,7 +104,9 @@ export default function Header() {
           )}
 
           <Link
-            href={path === "/create-new-trip" ? "/my-trips" : "/create-new-trip"}
+            href={
+              path === "/create-new-trip" ? "/my-trips" : "/create-new-trip"
+            }
           >
             <Button>
               {path === "/create-new-trip" ? "My Trips" : "Create New Trip"}
@@ -99,11 +120,21 @@ export default function Header() {
                 labelIcon={<LayoutDashboard size={15} />}
                 href="/dashboard"
               />
+
               <UserButton.Link
                 label="My Trips"
                 labelIcon={<Map size={15} />}
                 href="/my-trips"
               />
+
+              {isPartner && (
+                <UserButton.Link
+                  label="Partner Portal"
+                  labelIcon={<Building2 size={15} className="text-blue-500" />}
+                  href="/partner/dashboard"
+                />
+              )}
+
               {isAdmin && (
                 <UserButton.Link
                   label="Admin Portal"

@@ -2,6 +2,7 @@
 
 import React, { useContext, useEffect, useState } from "react";
 import { useMutation } from "convex/react";
+import { useConvexAuth } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useUser } from "@clerk/nextjs";
 import { UserDetailContext } from "@/context/UserDetailContext";
@@ -21,24 +22,30 @@ function Provider({
   const [userDetail, setUserDetail] = useState<any>();
   const [tripDetailInfo, setTripDetailInfo] = useState<TripInfo | null>(null);
 
-  const { user, isSignedIn } = useUser();
+  const { user, isSignedIn, isLoaded } = useUser();
+  const { isAuthenticated, isLoading } = useConvexAuth();
 
   useEffect(() => {
-    if (isSignedIn && user) {
-      createNewUser();
-    }
-  }, [isSignedIn, user]);
+    if (!isLoaded || isLoading) return;
+    if (!isSignedIn || !isAuthenticated || !user) return;
+
+    createNewUser();
+  }, [isLoaded, isLoading, isSignedIn, isAuthenticated, user]);
 
   const createNewUser = async () => {
     if (!user) return;
 
-    const result = await createUser({
-      email: user.primaryEmailAddress?.emailAddress ?? "",
-      imageUrl: user.imageUrl,
-      name: user.fullName ?? "",
-    });
+    try {
+      const result = await createUser({
+        email: user.primaryEmailAddress?.emailAddress ?? "",
+        imageUrl: user.imageUrl,
+        name: user.fullName ?? "",
+      });
 
-    setUserDetail(result);
+      setUserDetail(result);
+    } catch (error) {
+      console.error("Failed to create or sync user:", error);
+    }
   };
 
   return (

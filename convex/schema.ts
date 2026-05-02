@@ -36,22 +36,29 @@ const PartnerProfileStatus = v.union(
   v.literal("suspended")
 );
 
+const MarketplaceProductStatus = v.union(
+  v.literal("draft"),
+  v.literal("pending_review"),
+  v.literal("published"),
+  v.literal("rejected"),
+  v.literal("archived")
+);
+
+const Currency = v.union(v.literal("PKR"), v.literal("USD"));
+
 export default defineSchema({
   Usertable: defineTable({
     name: v.string(),
     imageUrl: v.string(),
     email: v.string(),
 
-    // Existing subscription/credit fields
     subscription: v.optional(v.string()),
     credits: v.optional(v.number()),
     isPro: v.optional(v.boolean()),
 
-    // Secure identity fields
     clerkId: v.optional(v.string()),
     role: v.optional(UserRole),
 
-    // Useful for admin analytics later
     createdAt: v.optional(v.number()),
     updatedAt: v.optional(v.number()),
   })
@@ -63,19 +70,15 @@ export default defineSchema({
     tripId: v.string(),
     tripDetail: v.any(),
 
-    // Existing fields
     uid: v.string(),
     userEmail: v.optional(v.string()),
     isFavorite: v.optional(v.boolean()),
 
-    // Secure ownership field
     ownerId: v.optional(v.id("Usertable")),
 
-    // Future marketplace/visibility fields
     source: v.optional(TripSource),
     visibility: v.optional(TripVisibility),
 
-    // Useful for sorting and analytics
     createdAt: v.optional(v.number()),
     updatedAt: v.optional(v.number()),
   })
@@ -126,10 +129,8 @@ export default defineSchema({
 
     status: PartnerProfileStatus,
 
-    // Commission percentage taken by Itinera
     commissionRate: v.number(),
 
-    // Marketplace analytics
     totalSales: v.number(),
     totalRevenue: v.number(),
     totalCommission: v.number(),
@@ -143,4 +144,78 @@ export default defineSchema({
     .index("by_slug", ["slug"])
     .index("by_status", ["status"])
     .index("by_partner_type", ["partnerType"]),
+
+  MarketplacePackages: defineTable({
+    partnerId: v.id("PartnerProfiles"),
+
+    title: v.string(),
+    destination: v.string(),
+    origin: v.optional(v.string()),
+    durationDays: v.number(),
+
+    price: v.number(),
+    currency: Currency,
+
+    groupSize: v.optional(v.string()),
+    coverImage: v.optional(v.string()),
+    gallery: v.optional(v.array(v.string())),
+
+    description: v.string(),
+
+    itinerary: v.any(),
+    inclusions: v.array(v.string()),
+    exclusions: v.array(v.string()),
+    terms: v.optional(v.string()),
+
+    status: MarketplaceProductStatus,
+    adminNote: v.optional(v.string()),
+    reviewedBy: v.optional(v.id("Usertable")),
+    reviewedAt: v.optional(v.number()),
+    publishedAt: v.optional(v.number()),
+
+    ratingAvg: v.optional(v.number()),
+    ratingCount: v.optional(v.number()),
+    purchaseCount: v.number(),
+
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_partner", ["partnerId"])
+    .index("by_status", ["status"])
+    .index("by_destination", ["destination"])
+    .index("by_price", ["price"]),
+
+  CollaboratorPlans: defineTable({
+    partnerId: v.id("PartnerProfiles"),
+
+    title: v.string(),
+    destination: v.string(),
+    durationDays: v.number(),
+
+    price: v.number(),
+    currency: Currency,
+
+    coverImage: v.optional(v.string()),
+    previewText: v.string(),
+
+    fullPlan: v.any(),
+    tags: v.array(v.string()),
+
+    status: MarketplaceProductStatus,
+    adminNote: v.optional(v.string()),
+    reviewedBy: v.optional(v.id("Usertable")),
+    reviewedAt: v.optional(v.number()),
+    publishedAt: v.optional(v.number()),
+
+    ratingAvg: v.optional(v.number()),
+    ratingCount: v.optional(v.number()),
+    purchaseCount: v.number(),
+
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_partner", ["partnerId"])
+    .index("by_status", ["status"])
+    .index("by_destination", ["destination"])
+    .index("by_price", ["price"]),
 });
