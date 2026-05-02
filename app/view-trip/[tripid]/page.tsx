@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "convex/react";
-import { FileDown } from "lucide-react";
+import { FileDown, Sparkles } from "lucide-react";
 
 import GlobalMap from "@/app/create-new-trip/_components/GlobalMap";
 import Itinerary from "@/app/create-new-trip/_components/Itinerary";
@@ -17,6 +16,7 @@ import { Button } from "@/components/ui/button";
 
 function ViewTrip() {
   const params = useParams();
+  const router = useRouter();
 
   const tripid = useMemo(() => {
     const rawTripId = params.tripid || params.tripId;
@@ -78,13 +78,24 @@ function ViewTrip() {
 
   return (
     <div>
-      <div className="px-5 py-4 border-b bg-white flex justify-end">
-        <Link href={`/travel-report/${tripid}`}>
-          <Button>
-            <FileDown className="mr-2" size={16} />
-            Export Travel Report
-          </Button>
-        </Link>
+      <div className="px-5 py-4 border-b bg-white flex justify-end gap-3">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => router.push(`/reoptimize-trip/${tripid}`)}
+          className="border-purple-200 text-purple-700 hover:bg-purple-50"
+        >
+          <Sparkles className="mr-2" size={16} />
+          AI Re-Optimize Trip
+        </Button>
+
+        <Button
+          type="button"
+          onClick={() => router.push(`/travel-report/${tripid}`)}
+        >
+          <FileDown className="mr-2" size={16} />
+          Export Travel Report
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5">
