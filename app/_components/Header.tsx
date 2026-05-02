@@ -22,6 +22,7 @@ import { api } from "@/convex/_generated/api";
 
 const menuOptions = [
   { name: "Home", path: "/" },
+  { name: "Marketplace", path: "/marketplace" },
   { name: "Partner Program", path: "/partner" },
   { name: "Pricing", path: "/pricing" },
   { name: "Contact Us", path: "/contact-us" },
