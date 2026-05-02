@@ -46,6 +46,37 @@ const MarketplaceProductStatus = v.union(
 
 const Currency = v.union(v.literal("PKR"), v.literal("USD"));
 
+const ProductType = v.union(
+  v.literal("agency_package"),
+  v.literal("collaborator_plan")
+);
+
+const PaymentStatus = v.union(
+  v.literal("pending"),
+  v.literal("paid"),
+  v.literal("failed"),
+  v.literal("refunded")
+);
+
+const OrderStatus = v.union(
+  v.literal("pending"),
+  v.literal("confirmed"),
+  v.literal("completed"),
+  v.literal("cancelled")
+);
+
+const DummyPaymentMethod = v.union(
+  v.literal("card"),
+  v.literal("easypaisa"),
+  v.literal("jazzcash"),
+  v.literal("bank")
+);
+
+const PayoutStatus = v.union(
+  v.literal("unpaid"),
+  v.literal("paid")
+);
+
 export default defineSchema({
   Usertable: defineTable({
     name: v.string(),
@@ -218,4 +249,58 @@ export default defineSchema({
     .index("by_status", ["status"])
     .index("by_destination", ["destination"])
     .index("by_price", ["price"]),
+
+  Orders: defineTable({
+    buyerId: v.id("Usertable"),
+    partnerId: v.id("PartnerProfiles"),
+
+    productType: ProductType,
+
+    packageId: v.optional(v.id("MarketplacePackages")),
+    planId: v.optional(v.id("CollaboratorPlans")),
+
+    productTitle: v.string(),
+
+    amount: v.number(),
+    currency: Currency,
+
+    platformCommission: v.number(),
+    partnerEarning: v.number(),
+    commissionRate: v.number(),
+
+    paymentStatus: PaymentStatus,
+    orderStatus: OrderStatus,
+
+    dummyPaymentMethod: DummyPaymentMethod,
+    dummyTransactionId: v.string(),
+
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_buyer", ["buyerId"])
+    .index("by_partner", ["partnerId"])
+    .index("by_product_type", ["productType"])
+    .index("by_payment_status", ["paymentStatus"])
+    .index("by_order_status", ["orderStatus"]),
+
+  CommissionLedger: defineTable({
+    orderId: v.id("Orders"),
+    partnerId: v.id("PartnerProfiles"),
+
+    productType: ProductType,
+
+    grossAmount: v.number(),
+    platformCommission: v.number(),
+    partnerEarning: v.number(),
+    commissionRate: v.number(),
+
+    currency: Currency,
+    payoutStatus: PayoutStatus,
+
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_order", ["orderId"])
+    .index("by_partner", ["partnerId"])
+    .index("by_payout_status", ["payoutStatus"]),
 });

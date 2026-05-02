@@ -11,6 +11,7 @@
 import type * as admin from "../admin.js";
 import type * as authHelpers from "../authHelpers.js";
 import type * as marketplace from "../marketplace.js";
+import type * as orders from "../orders.js";
 import type * as partners from "../partners.js";
 import type * as tripDetail from "../tripDetail.js";
 import type * as trips from "../trips.js";
@@ -26,6 +27,7 @@ declare const fullApi: ApiFromModules<{
   admin: typeof admin;
   authHelpers: typeof authHelpers;
   marketplace: typeof marketplace;
+  orders: typeof orders;
   partners: typeof partners;
   tripDetail: typeof tripDetail;
   trips: typeof trips;
