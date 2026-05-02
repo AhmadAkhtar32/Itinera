@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import OpenAI from 'openai';
+import { auth } from "@clerk/nextjs/server";
+import OpenAI from "openai";
 
 // 1. Azure/GitHub Models Configuration
 export const openai = new OpenAI({
@@ -106,7 +107,23 @@ Return a **Strict JSON** object following this schema.
 // API ROUTE HANDLER
 // ============================================================================
 export async function POST(req: NextRequest) {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return NextResponse.json(
+      { error: "Unauthorized. Please sign in first." },
+      { status: 401 }
+    );
+  }
+
   const { messages, isFinal } = await req.json();
+
+  if (!Array.isArray(messages)) {
+    return NextResponse.json(
+      { error: "Invalid request. messages must be an array." },
+      { status: 400 }
+    );
+  }
 
   // 🛠️ 1. Clean the messages array! OpenAi rejects custom properties like 'ui'
   const cleanMessages = messages.map((m: any) => ({

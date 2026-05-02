@@ -1,95 +1,167 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-
-// 🛠️ Admins get infinite access automatically
-const ADMIN_EMAILS = [
-    "ahmadrao3226@gmail.com",     // First admin email
-  "ahsanabdullah2876@gmail.com" // Second admin email 
-];
+import { requireUser, isAdminEmail } from "./authHelpers";
 
 export const CreateTripDetail = mutation({
-    args: {
-        tripId: v.string(),
-        uid: v.string(),      // Clerk User ID is a string
-        tripDetail: v.any(),
-        userEmail: v.string() // 🛠️ We need the email to check their credits
-    },
-    handler: async (ctx, args) => {
-        // 1. Find the user in the database
-        const user = await ctx.db.query("Usertable")
-            .filter(q => q.eq(q.field("email"), args.userEmail))
-            .first();
+  args: {
+    tripId: v.string(),
 
-        if (!user) throw new Error("User account not found");
+    // Kept for old frontend compatibility.
+    // Backend does NOT trust these anymore.
+    uid: v.optional(v.string()),
+    userEmail: v.optional(v.string()),
 
-        // 2. Gatekeeper Logic
-        const isAdmin = ADMIN_EMAILS.includes(args.userEmail);
-        const isPro = user.isPro === true;
-        const credits = user.credits ?? 0;
+    tripDetail: v.any(),
+  },
+  handler: async (ctx, args) => {
+    const user = await requireUser(ctx);
 
-        // Block them if they are out of credits and not an admin/pro
-        if (!isAdmin && !isPro && credits <= 0) {
-            throw new Error("INSUFFICIENT_CREDITS");
-        }
+    const isAdmin = user.role === "admin" || isAdminEmail(user.email);
+    const isPro = user.isPro === true;
+    const credits = user.credits ?? 0;
+    const now = Date.now();
 
-        // 3. Deduct 1 credit if they are a regular basic user
-        if (!isAdmin && !isPro) {
-            await ctx.db.patch(user._id, { credits: credits - 1 });
-        }
+    if (!isAdmin && !isPro && credits <= 0) {
+      throw new Error("INSUFFICIENT_CREDITS");
+    }
 
-        // 4. Save the trip to the database
-        const result = await ctx.db.insert("TripDetailTable", {
-            tripDetail: args.tripDetail,
-            tripId: args.tripId,
-            uid: args.uid,
-            userEmail: args.userEmail, // 🛠️ ADD THIS LINE to link the trip to the email!
-        });
+    if (!isAdmin && !isPro) {
+      await ctx.db.patch(user._id, {
+        credits: credits - 1,
+        updatedAt: now,
+      });
+    }
 
-        return result;
-    },
+    const result = await ctx.db.insert("TripDetailTable", {
+      tripDetail: args.tripDetail,
+      tripId: args.tripId,
+
+      // Keep old fields working
+      uid: user._id,
+      userEmail: user.email,
+
+      // New secure fields
+      ownerId: user._id,
+      source: "ai_generated",
+      visibility: "private",
+      isFavorite: false,
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    return result;
+  },
 });
 
 export const GetUserTrips = query({
-    args: {
-        uid: v.string(),  // MUST MATCH your inserted data type
-    },
-    handler: async (ctx, args) => {
-        const result = await ctx.db
-            .query("TripDetailTable")
-            .filter((q) => q.eq(q.field("uid"), args.uid))
-            .order('desc')
-            .collect();
+  args: {
+    // Kept optional so old frontend calls do not break.
+    uid: v.optional(v.string()),
+  },
+  handler: async (ctx) => {
+    const user = await requireUser(ctx);
 
-        return result;
-    },
+    const ownedTrips = await ctx.db
+      .query("TripDetailTable")
+      .withIndex("by_owner", (q) => q.eq("ownerId", user._id))
+      .order("desc")
+      .collect();
+
+    // Backward compatibility: old trips may not have ownerId yet.
+    const legacyUidTrips = await ctx.db
+      .query("TripDetailTable")
+      .withIndex("by_uid", (q) => q.eq("uid", user._id))
+      .order("desc")
+      .collect();
+
+    // Backward compatibility: some old trips were saved by email.
+    const legacyEmailTrips = await ctx.db
+      .query("TripDetailTable")
+      .withIndex("by_user_email", (q) => q.eq("userEmail", user.email))
+      .order("desc")
+      .collect();
+
+    const byId = new Map();
+
+    [...ownedTrips, ...legacyUidTrips, ...legacyEmailTrips].forEach((trip) => {
+      byId.set(trip._id, trip);
+    });
+
+    return Array.from(byId.values()).sort(
+      (a, b) => b._creationTime - a._creationTime
+    );
+  },
 });
 
 export const GetTripById = query({
-    args: {
-        uid: v.string(),
-        tripid: v.string()
-    },
-    handler: async (ctx, args) => {
-        const result = await ctx.db
-            .query("TripDetailTable")
-            .filter((q) => q.and(
-                q.eq(q.field("uid"), args.uid),
-                q.eq(q.field('tripId'), args?.tripid)
-            ))
-            .collect();
+  args: {
+    // Kept optional so old frontend calls do not break.
+    uid: v.optional(v.string()),
+    tripid: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const user = await requireUser(ctx);
 
-        return result[0];
-    },
+    const trip = await ctx.db
+      .query("TripDetailTable")
+      .withIndex("by_trip_id", (q) => q.eq("tripId", args.tripid))
+      .first();
+
+    if (!trip) {
+      return null;
+    }
+
+    const isOwnerByNewField = trip.ownerId && trip.ownerId === user._id;
+    const isOwnerByLegacyUid = trip.uid === user._id;
+    const isOwnerByEmail = trip.userEmail === user.email;
+
+    if (!isOwnerByNewField && !isOwnerByLegacyUid && !isOwnerByEmail) {
+      throw new Error("Forbidden. You do not own this trip.");
+    }
+
+    return trip;
+  },
 });
 
 export const GetPublicTripById = query({
-    args: { tripid: v.string() },
-    handler: async (ctx, args) => {
-        const result = await ctx.db
-            .query("TripDetailTable")
-            .filter((q) => q.eq(q.field('_id'), args.tripid)) 
-            .collect();
+  args: {
+    tripid: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const trip = await ctx.db
+      .query("TripDetailTable")
+      .withIndex("by_trip_id", (q) => q.eq("tripId", args.tripid))
+      .first();
 
-        return result.length > 0 ? result[0] : null;
-    },
+    if (!trip) {
+      return null;
+    }
+
+    if (trip.visibility === "public") {
+      return trip;
+    }
+
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      return null;
+    }
+
+    const email = identity.email?.toLowerCase();
+
+    const user = await ctx.db
+      .query("Usertable")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .unique();
+
+    const isOwnerByNewField = user && trip.ownerId && trip.ownerId === user._id;
+    const isOwnerByLegacyUid = user && trip.uid === user._id;
+    const isOwnerByEmail = email && trip.userEmail === email;
+
+    if (isOwnerByNewField || isOwnerByLegacyUid || isOwnerByEmail) {
+      return trip;
+    }
+
+    return null;
+  },
 });

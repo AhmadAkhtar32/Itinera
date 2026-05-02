@@ -1,76 +1,90 @@
-"use client"
-import GlobalMap from '@/app/create-new-trip/_components/GlobalMap';
-import Itinerary from '@/app/create-new-trip/_components/Itinerary';
-import { Trip } from '@/app/my-trips/page';
-import { userTripDetail, useUserDetail } from '@/app/provider';
-import { api } from '@/convex/_generated/api';
-import { useConvex } from 'convex/react';
-import { useParams } from 'next/navigation';
-import React, { useEffect, useState } from 'react'
+"use client";
+
+import GlobalMap from "@/app/create-new-trip/_components/GlobalMap";
+import Itinerary from "@/app/create-new-trip/_components/Itinerary";
+import { Trip } from "@/app/my-trips/page";
+import { userTripDetail } from "@/app/provider";
+import { api } from "@/convex/_generated/api";
+import { useQuery } from "convex/react";
+import { useParams } from "next/navigation";
+import React, { useEffect, useMemo, useState } from "react";
 
 function ViewTrip() {
-    const params = useParams();
-    // Safely catch the ID whether the folder is named [tripid] or [tripId]
-    const tripid = params.tripid || params.tripId; 
-    
-    const { userDetail } = useUserDetail();
-    const convex = useConvex();
-    const [tripData, setTripData] = useState<Trip>();
+  const params = useParams();
 
-    // We add a state to hold the coordinates for the map
-    const [mapCoordinates, setMapCoordinates] = useState<number[]>([]);
+  const tripid = useMemo(() => {
+    const rawTripId = params.tripid || params.tripId;
 
-    //@ts-ignore
-    const { tripDetailInfo, setTripDetailInfo } = userTripDetail();
-
-    // 1. CHANGED: Trigger the fetch as soon as we have the trip ID from the URL, 
-    // without waiting to see if a user is logged in.
-    useEffect(() => {
-        if (tripid) {
-            GetTrip();
-        }
-    }, [tripid])
-
-    const GetTrip = async () => {
-        try {
-            // 2. CHANGED: Call the public query and remove the 'uid' argument
-            const result = await convex.query(api.tripDetail.GetPublicTripById, {
-                tripid: tripid + ''
-            });
-
-            console.log("Shared Trip Result:", result);
-            
-            if (result) {
-                setTripData(result);
-                setTripDetailInfo(result?.tripDetail);
-
-                // Extract coordinates from the first hotel in the trip details
-                if (result?.tripDetail?.hotels && result.tripDetail.hotels.length > 0) {
-                    const firstHotel = result.tripDetail.hotels[0];
-                    setMapCoordinates([
-                        firstHotel.geo_coordinates.longitude,
-                        firstHotel.geo_coordinates.latitude
-                    ]);
-                }
-            } else {
-                console.warn("No trip found in the database for this ID.");
-            }
-        } catch (error) {
-            console.error("Error fetching the shared trip:", error);
-        }
+    if (Array.isArray(rawTripId)) {
+      return rawTripId[0];
     }
 
+    return rawTripId ? String(rawTripId) : "";
+  }, [params]);
+
+  const tripData = useQuery(
+    api.tripDetail.GetPublicTripById,
+    tripid ? { tripid } : "skip"
+  ) as Trip | null | undefined;
+
+  const [mapCoordinates, setMapCoordinates] = useState<number[]>([]);
+
+  // @ts-ignore
+  const { setTripDetailInfo } = userTripDetail();
+
+  useEffect(() => {
+    if (!tripData?.tripDetail) return;
+
+    setTripDetailInfo(tripData.tripDetail);
+
+    const firstHotel = tripData.tripDetail.hotels?.[0];
+
+    if (
+      firstHotel?.geo_coordinates?.longitude &&
+      firstHotel?.geo_coordinates?.latitude
+    ) {
+      setMapCoordinates([
+        firstHotel.geo_coordinates.longitude,
+        firstHotel.geo_coordinates.latitude,
+      ]);
+    }
+  }, [tripData, setTripDetailInfo]);
+
+  if (tripData === undefined) {
     return (
-        <div className='grid grid-cols-5'>
-            <div className='col-span-3'>
-                <Itinerary />
-            </div>
-            <div className='col-span-2'>
-                {/* Pass the coordinates here to stop rotation */}
-                <GlobalMap coordinates={mapCoordinates} />
-            </div>
+      <div className="flex justify-center items-center h-[70vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (!tripData) {
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center px-5">
+        <div className="max-w-md text-center border rounded-2xl p-8 bg-white shadow-sm">
+          <h1 className="text-2xl font-bold text-gray-900">
+            Trip not available
+          </h1>
+          <p className="text-gray-500 mt-3">
+            This trip either does not exist, is private, or you do not have
+            permission to view it.
+          </p>
         </div>
-    )
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-5">
+      <div className="lg:col-span-3">
+        <Itinerary />
+      </div>
+
+      <div className="lg:col-span-2">
+        <GlobalMap coordinates={mapCoordinates} />
+      </div>
+    </div>
+  );
 }
 
 export default ViewTrip;
