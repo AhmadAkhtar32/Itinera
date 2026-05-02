@@ -56,6 +56,7 @@ export default function SuperAdminDashboard() {
           <p className="text-gray-600 mt-4 leading-relaxed">
             This area is restricted to system administrators only.
           </p>
+
           <Link href="/">
             <button className="mt-6 px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-all">
               Return Home
@@ -87,7 +88,7 @@ export default function SuperAdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50/50 pb-20">
-      <div className="container mx-auto px-5 py-10 max-w-6xl">
+      <div className="container mx-auto px-5 py-10 max-w-7xl">
         {/* Header Section */}
         <div className="flex items-center justify-between mb-10">
           <div>
@@ -110,7 +111,7 @@ export default function SuperAdminDashboard() {
         </div>
 
         {/* Admin Module Shortcuts */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
           <Link
             href="/admin/applications"
             className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all"
@@ -152,6 +153,16 @@ export default function SuperAdminDashboard() {
           </Link>
 
           <Link
+            href="/admin/reviews"
+            className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all"
+          >
+            <h3 className="font-bold text-gray-900">Reviews</h3>
+            <p className="text-sm text-gray-500 mt-1">
+              Manage customer ratings and reviews.
+            </p>
+          </Link>
+
+          <Link
             href="/admin/analytics"
             className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all"
           >
@@ -169,10 +180,12 @@ export default function SuperAdminDashboard() {
               <div className="p-3 bg-blue-50 rounded-xl text-blue-600">
                 <Users size={24} />
               </div>
+
               <span className="text-xs font-bold text-green-500 bg-green-50 px-2 py-1 rounded-full">
                 + Live
               </span>
             </div>
+
             <p className="text-sm text-gray-500 font-medium">Total Users</p>
             <h2 className="text-3xl font-bold text-gray-900">
               {dashboardData?.stats.totalUsers}
@@ -185,6 +198,7 @@ export default function SuperAdminDashboard() {
                 <Map size={24} />
               </div>
             </div>
+
             <p className="text-sm text-gray-500 font-medium">
               Itineraries Generated
             </p>
@@ -199,6 +213,7 @@ export default function SuperAdminDashboard() {
                 <Activity size={24} />
               </div>
             </div>
+
             <p className="text-sm text-gray-500 font-medium">
               Avg Trips per User
             </p>
@@ -227,9 +242,11 @@ export default function SuperAdminDashboard() {
                   <p className="text-xs font-bold text-blue-500 uppercase">
                     # {index + 1}
                   </p>
+
                   <h3 className="font-bold text-gray-800 truncate">
                     {dest.name}
                   </h3>
+
                   <p className="text-xs text-gray-500">{dest.count} trips</p>
 
                   <div className="w-full bg-gray-100 h-1.5 mt-3 rounded-full overflow-hidden">
@@ -256,6 +273,7 @@ export default function SuperAdminDashboard() {
             <h2 className="font-bold text-xl text-gray-900">
               User Management
             </h2>
+
             <span className="text-sm text-gray-500">
               Synced with Clerk & Convex
             </span>
@@ -268,21 +286,27 @@ export default function SuperAdminDashboard() {
                   <th className="p-4 text-xs font-bold uppercase tracking-wider text-gray-500">
                     User Details
                   </th>
+
                   <th className="p-4 text-xs font-bold uppercase tracking-wider text-gray-500">
                     Email Address
                   </th>
+
                   <th className="p-4 text-xs font-bold uppercase tracking-wider text-gray-500">
                     Role
                   </th>
+
                   <th className="p-4 text-xs font-bold uppercase tracking-wider text-gray-500">
                     Plan
                   </th>
+
                   <th className="p-4 text-xs font-bold uppercase tracking-wider text-gray-500 text-center">
                     Trips
                   </th>
+
                   <th className="p-4 text-xs font-bold uppercase tracking-wider text-gray-500">
                     Database ID
                   </th>
+
                   <th className="p-4 text-xs font-bold uppercase tracking-wider text-gray-500 text-right">
                     Actions
                   </th>
@@ -305,6 +329,7 @@ export default function SuperAdminDashboard() {
                           alt="User"
                           className="w-10 h-10 rounded-full border border-gray-200"
                         />
+
                         <span className="font-semibold text-gray-900">
                           {dbUser.name}
                         </span>
@@ -383,8 +408,8 @@ export default function SuperAdminDashboard() {
         </div>
 
         <p className="text-xs text-gray-400 mt-6">
-          Note: Collaborator Plans and Advanced Analytics pages will be created
-          in the next steps.
+          Admin dashboard includes partner approvals, marketplace products,
+          customer reviews, dummy orders, commission, and analytics.
         </p>
       </div>
     </div>
