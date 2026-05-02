@@ -77,6 +77,11 @@ const PayoutStatus = v.union(
   v.literal("paid")
 );
 
+const ReviewStatus = v.union(
+  v.literal("published"),
+  v.literal("hidden")
+);
+
 export default defineSchema({
   Usertable: defineTable({
     name: v.string(),
@@ -303,4 +308,29 @@ export default defineSchema({
     .index("by_order", ["orderId"])
     .index("by_partner", ["partnerId"])
     .index("by_payout_status", ["payoutStatus"]),
+
+  Reviews: defineTable({
+    orderId: v.id("Orders"),
+    reviewerId: v.id("Usertable"),
+    partnerId: v.id("PartnerProfiles"),
+
+    productType: ProductType,
+
+    packageId: v.optional(v.id("MarketplacePackages")),
+    planId: v.optional(v.id("CollaboratorPlans")),
+
+    rating: v.number(),
+    comment: v.string(),
+
+    status: ReviewStatus,
+
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_order", ["orderId"])
+    .index("by_reviewer", ["reviewerId"])
+    .index("by_partner", ["partnerId"])
+    .index("by_package", ["packageId"])
+    .index("by_plan", ["planId"])
+    .index("by_status", ["status"]),
 });
