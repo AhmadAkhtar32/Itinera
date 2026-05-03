@@ -12,7 +12,6 @@ import {
   Building2,
   CheckCircle2,
   CreditCard,
-  FileText,
   Loader2,
   Lock,
   PenLine,
@@ -49,6 +48,7 @@ export default function CheckoutPage() {
 
   const [paymentMethod, setPaymentMethod] =
     useState<PaymentMethod>("easypaisa");
+
   const [transactionId, setTransactionId] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -69,7 +69,7 @@ export default function CheckoutPage() {
     }
 
     if (!transactionId.trim() || transactionId.trim().length < 6) {
-      alert("Please enter a valid transaction ID. Minimum 6 characters.");
+      alert("Please enter a valid dummy transaction ID. Minimum 6 characters.");
       return;
     }
 
@@ -81,14 +81,14 @@ export default function CheckoutPage() {
       if (isPackage) {
         result = await createPackageOrder({
           packageId: id as any,
-          PaymentMethod: paymentMethod,
-          TransactionId: transactionId,
+          dummyPaymentMethod: paymentMethod,
+          dummyTransactionId: transactionId.trim(),
         });
       } else if (isPlan) {
         result = await createPlanOrder({
           planId: id as any,
-          PaymentMethod: paymentMethod,
-          TransactionId: transactionId,
+          dummyPaymentMethod: paymentMethod,
+          dummyTransactionId: transactionId.trim(),
         });
       } else {
         throw new Error("Invalid checkout type.");
@@ -109,9 +109,11 @@ export default function CheckoutPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center px-5">
         <div className="bg-white border border-gray-100 rounded-3xl shadow-sm p-8 max-w-md text-center">
           <Receipt className="mx-auto text-gray-400 mb-4" size={56} />
+
           <h1 className="text-3xl font-bold text-gray-900">
             Invalid Checkout
           </h1>
+
           <p className="text-gray-600 mt-3">
             This checkout link is not valid.
           </p>
@@ -138,9 +140,11 @@ export default function CheckoutPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center px-5">
         <div className="bg-white border border-gray-100 rounded-3xl shadow-sm p-8 max-w-md text-center">
           <Receipt className="mx-auto text-gray-400 mb-4" size={56} />
+
           <h1 className="text-3xl font-bold text-gray-900">
             Product Not Available
           </h1>
+
           <p className="text-gray-600 mt-3">
             This item does not exist or is no longer published.
           </p>
@@ -158,9 +162,11 @@ export default function CheckoutPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center px-5">
         <div className="bg-white border border-gray-100 rounded-3xl shadow-sm p-8 max-w-md text-center">
           <Lock className="mx-auto text-blue-600 mb-4" size={56} />
+
           <h1 className="text-3xl font-bold text-gray-900">
             Sign in required
           </h1>
+
           <p className="text-gray-600 mt-3">
             Please sign in before completing checkout.
           </p>
@@ -180,21 +186,24 @@ export default function CheckoutPage() {
   const productDuration = product.durationDays;
   const partnerName = product.partner?.displayName || "Itinera Partner";
 
-  const platformCommissionEstimate =
-    product.partner?.commissionRate !== undefined
-      ? Math.round((productPrice * product.partner.commissionRate) / 100)
-      : 0;
+  const commissionRate = product.partner?.commissionRate ?? 0;
+
+  const platformCommissionEstimate = Math.round(
+    (productPrice * commissionRate) / 100
+  );
 
   const partnerEarningEstimate =
-    product.partner?.commissionRate !== undefined
-      ? productPrice - platformCommissionEstimate
-      : 0;
+    productPrice - platformCommissionEstimate;
 
   return (
     <div className="min-h-screen bg-gray-50/60 pb-16">
       <div className="max-w-6xl mx-auto px-6 py-10">
         <Link
-          href={isPackage ? `/marketplace/packages/${id}` : `/marketplace/plans/${id}`}
+          href={
+            isPackage
+              ? `/marketplace/packages/${id}`
+              : `/marketplace/plans/${id}`
+          }
           className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-900 mb-6"
         >
           <ArrowLeft size={16} />
@@ -217,7 +226,7 @@ export default function CheckoutPage() {
               </h1>
 
               <p className="text-gray-600 mt-2">
-                This is a  payment flow for FYP. No real money is
+                This is a payment flow for FYP. No real money is
                 charged.
               </p>
             </div>
@@ -225,34 +234,30 @@ export default function CheckoutPage() {
             <div className="p-8 space-y-8">
               <section>
                 <h2 className="text-xl font-bold text-gray-900 mb-4">
-                  Select  Payment Method
+                  Select Payment Method
                 </h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <PaymentMethodCard
                     label="EasyPaisa"
-                    value="easypaisa"
                     selected={paymentMethod === "easypaisa"}
                     onClick={() => setPaymentMethod("easypaisa")}
                   />
 
                   <PaymentMethodCard
                     label="JazzCash"
-                    value="jazzcash"
                     selected={paymentMethod === "jazzcash"}
                     onClick={() => setPaymentMethod("jazzcash")}
                   />
 
                   <PaymentMethodCard
                     label="Bank Transfer"
-                    value="bank"
                     selected={paymentMethod === "bank"}
                     onClick={() => setPaymentMethod("bank")}
                   />
 
                   <PaymentMethodCard
                     label="Card"
-                    value="card"
                     selected={paymentMethod === "card"}
                     onClick={() => setPaymentMethod("card")}
                   />
@@ -261,7 +266,7 @@ export default function CheckoutPage() {
 
               <section>
                 <h2 className="text-xl font-bold text-gray-900 mb-4">
-                   Transaction ID
+                  Transaction ID
                 </h2>
 
                 <input
@@ -279,10 +284,12 @@ export default function CheckoutPage() {
               <div className="bg-blue-50 border border-blue-100 rounded-2xl p-5">
                 <div className="flex items-start gap-3">
                   <ShieldCheck className="text-blue-600 shrink-0" size={22} />
+
                   <div>
                     <h3 className="font-bold text-blue-900">
                       FYP Payment Notice
                     </h3>
+
                     <p className="text-sm text-blue-700 mt-1">
                       After clicking confirm, Itinera will create an order,
                       calculate platform commission, calculate partner earnings,
@@ -305,7 +312,7 @@ export default function CheckoutPage() {
                 ) : (
                   <>
                     <ShoppingCart className="mr-2" size={18} />
-                    Confirm  Payment
+                    Confirm Payment
                   </>
                 )}
               </Button>
@@ -330,6 +337,7 @@ export default function CheckoutPage() {
                   <p className="text-xs text-gray-500 font-bold uppercase">
                     Order Summary
                   </p>
+
                   <h2 className="font-bold text-gray-900">
                     {isPackage ? "Agency Package" : "Paid Travel Plan"}
                   </h2>
@@ -340,6 +348,7 @@ export default function CheckoutPage() {
                 <h3 className="font-bold text-xl text-gray-950">
                   {productTitle}
                 </h3>
+
                 <p className="text-gray-500 mt-2">
                   {productDestination} • {productDuration} days
                 </p>
@@ -364,12 +373,14 @@ export default function CheckoutPage() {
 
                 <InfoRow
                   label="Commission Rate"
-                  value={`${product.partner?.commissionRate ?? 0}%`}
+                  value={`${commissionRate}%`}
                 />
+
                 <InfoRow
                   label="Itinera Share"
                   value={`${productCurrency} ${platformCommissionEstimate.toLocaleString()}`}
                 />
+
                 <InfoRow
                   label="Partner Earning"
                   value={`${productCurrency} ${partnerEarningEstimate.toLocaleString()}`}
@@ -394,7 +405,6 @@ function PaymentMethodCard({
   onClick,
 }: {
   label: string;
-  value: PaymentMethod;
   selected: boolean;
   onClick: () => void;
 }) {
@@ -411,7 +421,7 @@ function PaymentMethodCard({
       <div className="flex items-center justify-between">
         <div>
           <p className="font-bold text-gray-900">{label}</p>
-          <p className="text-sm text-gray-500 mt-1"> payment method</p>
+          <p className="text-sm text-gray-500 mt-1">payment method</p>
         </div>
 
         {selected && <CheckCircle2 className="text-blue-600" size={22} />}
