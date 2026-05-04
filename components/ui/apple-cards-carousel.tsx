@@ -218,14 +218,10 @@ export const Card = ({ card, index, layout = false }: { card: CardType; index: n
   );
 };
 
-// FIXED: Better URL detection
 const isExternalUrl = (url?: string) => {
   if (!url) return false;
-  // If it starts with /, it's a local path
   if (url.startsWith('/')) return false;
-  // If it starts with http/https, it's external
   if (url.startsWith('http://') || url.startsWith('https://')) return true;
-  // Otherwise assume it's local
   return false;
 };
 
@@ -239,18 +235,17 @@ type NextBlurImageProps = {
   blurDataURL?: string | undefined;
 };
 
-export const NextBlurImage: React.FC<NextBlurImageProps> = ({ 
-  src, 
-  alt, 
-  className, 
-  width = 600, 
-  height = 400, 
-  fill = false, 
-  blurDataURL 
+export const NextBlurImage: React.FC<NextBlurImageProps> = ({
+  src,
+  alt,
+  className,
+  width = 600,
+  height = 400,
+  fill = false,
+  blurDataURL
 }) => {
   const [loaded, setLoaded] = useState(false);
 
-  // External images use regular img tag with blur effect
   if (isExternalUrl(src)) {
     return (
       <div className={cn(fill ? "relative w-full h-full" : "w-full", className)}>
@@ -269,13 +264,15 @@ export const NextBlurImage: React.FC<NextBlurImageProps> = ({
     );
   }
 
-  // Local images use Next.js Image component
+  // UPDATED: Added priority and unoptimized to ensure local images show on load
   if (fill) {
     return (
       <Image
         src={src}
         alt={alt ?? "image"}
         fill
+        priority
+        unoptimized
         className={cn("object-cover", className)}
         placeholder={blurDataURL ? "blur" : "empty"}
         blurDataURL={blurDataURL}
@@ -290,6 +287,8 @@ export const NextBlurImage: React.FC<NextBlurImageProps> = ({
       alt={alt ?? "image"}
       width={width}
       height={height}
+      priority
+      unoptimized
       className={cn("object-cover w-full h-auto", className)}
       placeholder={blurDataURL ? "blur" : "empty"}
       blurDataURL={blurDataURL}

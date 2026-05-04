@@ -27,7 +27,7 @@
     "mapbox-gl": "^3.17.0",
     "motion": "^12.23.24",
     "next": "15.4.4",
-    "openai": "^6.9.1",
+    "openai": "^6.25.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-hook-form": "^7.67.0",

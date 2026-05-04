@@ -22,6 +22,13 @@ import {
 
 type ActiveTab = "orders" | "commission";
 
+const USD_TO_PKR = 280;
+
+function toPKR(amount: number, currency: string) {
+  if (currency === "USD") return amount * USD_TO_PKR;
+  return amount;
+}
+
 export default function AdminAnalyticsPage() {
   const { isLoaded, isSignedIn } = useUser();
 
@@ -55,18 +62,23 @@ export default function AdminAnalyticsPage() {
     const totalOrders = orders?.length ?? 0;
 
     const totalRevenue =
-      orders?.reduce((sum: number, order: any) => sum + (order.amount ?? 0), 0) ??
-      0;
+      orders?.reduce(
+        (sum: number, order: any) =>
+          sum + toPKR(order.amount ?? 0, order.currency),
+        0
+      ) ?? 0;
 
     const totalCommission =
       orders?.reduce(
-        (sum: number, order: any) => sum + (order.platformCommission ?? 0),
+        (sum: number, order: any) =>
+          sum + toPKR(order.platformCommission ?? 0, order.currency),
         0
       ) ?? 0;
 
     const totalPartnerEarnings =
       orders?.reduce(
-        (sum: number, order: any) => sum + (order.partnerEarning ?? 0),
+        (sum: number, order: any) =>
+          sum + toPKR(order.partnerEarning ?? 0, order.currency),
         0
       ) ?? 0;
 
@@ -74,7 +86,8 @@ export default function AdminAnalyticsPage() {
       ledger
         ?.filter((entry: any) => entry.payoutStatus === "unpaid")
         ?.reduce(
-          (sum: number, entry: any) => sum + (entry.partnerEarning ?? 0),
+          (sum: number, entry: any) =>
+            sum + toPKR(entry.partnerEarning ?? 0, entry.currency),
           0
         ) ?? 0;
 
@@ -82,7 +95,8 @@ export default function AdminAnalyticsPage() {
       ledger
         ?.filter((entry: any) => entry.payoutStatus === "paid")
         ?.reduce(
-          (sum: number, entry: any) => sum + (entry.partnerEarning ?? 0),
+          (sum: number, entry: any) =>
+            sum + toPKR(entry.partnerEarning ?? 0, entry.currency),
           0
         ) ?? 0;
 
@@ -135,6 +149,7 @@ export default function AdminAnalyticsPage() {
           <p className="text-gray-600 mt-4 leading-relaxed">
             This area is restricted to system administrators only.
           </p>
+
           <Link href="/">
             <Button className="mt-6">Return Home</Button>
           </Link>
@@ -143,8 +158,7 @@ export default function AdminAnalyticsPage() {
     );
   }
 
-  const defaultCurrency =
-    orders?.[0]?.currency || ledger?.[0]?.currency || "PKR";
+  const defaultCurrency = "PKR";
 
   return (
     <div className="min-h-screen bg-gray-50/60 pb-16">
@@ -173,12 +187,18 @@ export default function AdminAnalyticsPage() {
             <p className="text-gray-600 mt-2">
               Track orders, commission, partner payouts, and marketplace revenue.
             </p>
+
+            <p className="text-xs text-gray-400 mt-2">
+              Summary cards convert USD orders to PKR using demo rate: 1 USD =
+              280 PKR.
+            </p>
           </div>
 
           <div className="flex gap-3">
             <Link href="/admin/packages">
               <Button variant="outline">Packages</Button>
             </Link>
+
             <Link href="/admin/plans">
               <Button variant="outline">Plans</Button>
             </Link>
@@ -226,22 +246,20 @@ export default function AdminAnalyticsPage() {
         <div className="bg-white border border-gray-100 rounded-2xl p-2 shadow-sm flex flex-wrap gap-2 mb-8">
           <button
             onClick={() => setActiveTab("orders")}
-            className={`px-5 py-2 rounded-xl text-sm font-bold transition-all ${
-              activeTab === "orders"
-                ? "bg-blue-600 text-white"
-                : "text-gray-600 hover:bg-gray-100"
-            }`}
+            className={`px-5 py-2 rounded-xl text-sm font-bold transition-all ${activeTab === "orders"
+              ? "bg-blue-600 text-white"
+              : "text-gray-600 hover:bg-gray-100"
+              }`}
           >
             Orders
           </button>
 
           <button
             onClick={() => setActiveTab("commission")}
-            className={`px-5 py-2 rounded-xl text-sm font-bold transition-all ${
-              activeTab === "commission"
-                ? "bg-blue-600 text-white"
-                : "text-gray-600 hover:bg-gray-100"
-            }`}
+            className={`px-5 py-2 rounded-xl text-sm font-bold transition-all ${activeTab === "commission"
+              ? "bg-blue-600 text-white"
+              : "text-gray-600 hover:bg-gray-100"
+              }`}
           >
             Commission Ledger
           </button>
@@ -288,7 +306,9 @@ function OrdersTable({ orders }: { orders: any[] }) {
   return (
     <div className="bg-white border border-gray-100 rounded-3xl shadow-sm overflow-hidden">
       <div className="p-6 border-b border-gray-100">
-        <h2 className="text-xl font-bold text-gray-950">All Marketplace Orders</h2>
+        <h2 className="text-xl font-bold text-gray-950">
+          All Marketplace Orders
+        </h2>
         <p className="text-gray-500 mt-1">
           Complete list of package bookings and paid plan purchases.
         </p>
@@ -374,7 +394,8 @@ function OrdersTable({ orders }: { orders: any[] }) {
                 </td>
 
                 <td className="p-4 text-blue-700 font-semibold">
-                  {order.currency} {order.platformCommission?.toLocaleString()}
+                  {order.currency}{" "}
+                  {order.platformCommission?.toLocaleString()}
                 </td>
 
                 <td className="p-4">
@@ -554,7 +575,9 @@ function StatCard({
       <div className="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4">
         {icon}
       </div>
+
       <p className="text-sm text-gray-500 font-medium">{title}</p>
+
       <h2 className="text-xl font-bold text-gray-900 mt-2">{value}</h2>
     </div>
   );
