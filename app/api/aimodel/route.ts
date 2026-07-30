@@ -1,12 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import OpenAI from "openai";
-
-// 1. Azure/GitHub Models Configuration
-export const openai = new OpenAI({
-  baseURL: 'https://models.inference.ai.azure.com',
-  apiKey: process.env.GITHUB_TOKEN,
-});
+import { openai } from "@/lib/openai";
 
 // ============================================================================
 // PROMPT 1: CONVERSATIONAL AGENT (Collects Info)
