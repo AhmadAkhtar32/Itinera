@@ -273,7 +273,8 @@ export default function PartnerApplicationStatusPage() {
               </div>
             )}
 
-            {myApplication.socialLinks?.length > 0 && (
+            {myApplication.socialLinks &&
+  myApplication.socialLinks.length > 0 && (
               <div className="border border-gray-100 rounded-2xl p-4 bg-gray-50">
                 <p className="text-xs text-gray-500 uppercase font-bold">
                   Social Links
