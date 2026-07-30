@@ -6,8 +6,10 @@ import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
 import { useOutsideClick } from "@/hooks/use-outside-click";
 
+import { ReactNode } from "react";
+
 interface CarouselProps {
-  items: JSX.Element[];
+  items: ReactNode[];
   initialScroll?: number;
 }
 
