@@ -7,8 +7,6 @@ import {
   SignInButton,
   UserButton,
   useUser,
-  SignedIn,
-  SignedOut,
 } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
 import {
@@ -40,7 +38,8 @@ export default function Header() {
 
   const isAdmin = currentUser?.role === "admin";
   const isPartner =
-    currentUser?.role === "agency" || currentUser?.role === "collaborator";
+    currentUser?.role === "agency" ||
+    currentUser?.role === "collaborator";
 
   return (
     <header className="flex items-center justify-between px-6 py-4 border-b bg-white">
@@ -56,7 +55,7 @@ export default function Header() {
         </h2>
       </Link>
 
-      {/* Menu Options */}
+      {/* Navigation */}
       <nav>
         <ul className="flex gap-6 items-center">
           {menuOptions.map((menu) => (
@@ -72,89 +71,101 @@ export default function Header() {
         </ul>
       </nav>
 
-      {/* Action Buttons */}
+      {/* Right Side */}
       <div className="flex gap-4 items-center">
-        <SignedOut>
+        {!isSignedIn ? (
           <SignInButton mode="modal">
             <Button>Get Started</Button>
           </SignInButton>
-        </SignedOut>
+        ) : (
+          <>
+            {isPartner && (
+              <Link href="/partner/dashboard">
+                <Button
+                  variant="outline"
+                  className="border-blue-200 text-blue-600 hover:bg-blue-50 flex gap-2"
+                >
+                  <Building2 size={16} />
+                  Partner Portal
+                </Button>
+              </Link>
+            )}
 
-        <SignedIn>
-          {isPartner && (
-            <Link href="/partner/dashboard">
-              <Button
-                variant="outline"
-                className="border-blue-200 text-blue-600 hover:bg-blue-50 flex gap-2"
-              >
-                <Building2 size={16} />
-                Partner Portal
+            {isAdmin && (
+              <Link href="/admin">
+                <Button
+                  variant="outline"
+                  className="border-red-200 text-red-600 hover:bg-red-50 flex gap-2"
+                >
+                  <ShieldAlert size={16} />
+                  Admin Panel
+                </Button>
+              </Link>
+            )}
+
+            <Link
+              href={
+                path === "/create-new-trip"
+                  ? "/my-trips"
+                  : "/create-new-trip"
+              }
+            >
+              <Button>
+                {path === "/create-new-trip"
+                  ? "My Trips"
+                  : "Create New Trip"}
               </Button>
             </Link>
-          )}
 
-          {isAdmin && (
-            <Link href="/admin">
-              <Button
-                variant="outline"
-                className="border-red-200 text-red-600 hover:bg-red-50 flex gap-2"
-              >
-                <ShieldAlert size={16} />
-                Admin Panel
-              </Button>
-            </Link>
-          )}
-
-          <Link
-            href={
-              path === "/create-new-trip" ? "/my-trips" : "/create-new-trip"
-            }
-          >
-            <Button>
-              {path === "/create-new-trip" ? "My Trips" : "Create New Trip"}
-            </Button>
-          </Link>
-
-          <UserButton>
-            <UserButton.MenuItems>
-              <UserButton.Link
-                label="Dashboard"
-                labelIcon={<LayoutDashboard size={15} />}
-                href="/dashboard"
-              />
-
-              <UserButton.Link
-                label="My Trips"
-                labelIcon={<Map size={15} />}
-                href="/my-trips"
-              />
-
-              <UserButton.Link
-                label="My Bookings"
-                labelIcon={<ShoppingBag size={15} />}
-                href="/my-bookings"
-              />
-
-              {isPartner && (
+            <UserButton>
+              <UserButton.MenuItems>
                 <UserButton.Link
-                  label="Partner Portal"
-                  labelIcon={<Building2 size={15} className="text-blue-500" />}
-                  href="/partner/dashboard"
+                  label="Dashboard"
+                  labelIcon={<LayoutDashboard size={15} />}
+                  href="/dashboard"
                 />
-              )}
 
-              {isAdmin && (
                 <UserButton.Link
-                  label="Admin Portal"
-                  labelIcon={
-                    <ShieldAlert size={15} className="text-red-500" />
-                  }
-                  href="/admin"
+                  label="My Trips"
+                  labelIcon={<Map size={15} />}
+                  href="/my-trips"
                 />
-              )}
-            </UserButton.MenuItems>
-          </UserButton>
-        </SignedIn>
+
+                <UserButton.Link
+                  label="My Bookings"
+                  labelIcon={<ShoppingBag size={15} />}
+                  href="/my-bookings"
+                />
+
+                {isPartner && (
+                  <UserButton.Link
+                    label="Partner Portal"
+                    labelIcon={
+                      <Building2
+                        size={15}
+                        className="text-blue-500"
+                      />
+                    }
+                    href="/partner/dashboard"
+                  />
+                )}
+
+                {isAdmin && (
+                  <UserButton.Link
+                    label="Admin Portal"
+                    labelIcon={
+                      <ShieldAlert
+                        size={15}
+                        className="text-red-500"
+                      />
+                    }
+                    href="/admin"
+                  />
+                )}
+              </UserButton.MenuItems>
+            </UserButton>
+          </>
+        )}
       </div>
     </header>
   );
