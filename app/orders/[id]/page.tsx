@@ -239,7 +239,10 @@ export default function OrderReceiptPage() {
                 </p>
               </section>
 
-              {!isPackage && product?.fullPlan && (
+              {!isPackage &&
+  product &&
+  "fullPlan" in product &&
+  product.fullPlan && (
                 <section className="border border-gray-100 rounded-3xl p-6">
                   <div className="flex items-center gap-3 mb-5">
                     <FileText className="text-orange-600" />
