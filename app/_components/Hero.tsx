@@ -41,27 +41,27 @@ function Hero() {
     }
 
     return (
-        <div className="mt-24 flex flex-col items-center justify-center gap-10">
+        <div className="mt-16 md:mt-24 flex flex-col items-center justify-center gap-8 md:gap-10 px-4">
             {/* Content  */}
-            <div className='max-w-3xl w-full text-center space-y-6'>
-                <h1 className='text-xl md:text-5xl font-bold'>Hey! <span className='text-primary'>Itinera</span> at your service  plan smarter-travel better<span className='text-4xl'>✈️</span></h1>
-                <p className='text-lg'>Tell me what you need — I’ll plan the flights, hotels, and everything else in seconds.</p>
+            <div className='max-w-3xl w-full text-center space-y-4 md:space-y-6'>
+                <h1 className='text-2xl md:text-5xl font-bold'>Hey! <span className='text-primary'>Itinera</span> at your service  plan smarter-travel better<span className='text-3xl md:text-4xl'>✈️</span></h1>
+                <p className='text-base md:text-lg'>Tell me what you need — I’ll plan the flights, hotels, and everything else in seconds.</p>
             </div>
 
             {/* Input Box  */}
-            <div>
+            <div className='w-full max-w-3xl'>
                 <div className='border rounded-2xl p-4 shadow relative'>
-                    <Textarea placeholder="Let's Plan A Trip Together 😊" className='w-180 h-28 bg-transparent border-none focus-visible:ring-0 shadow-none resize-none' />
-                    <Button className='hover:scale-105 hover:brightness-110 transition-all absolute bottom-6 right-6' onClick={() => onSend()}>
+                    <Textarea placeholder="Let's Plan A Trip Together 😊" className='w-full h-28 bg-transparent border-none focus-visible:ring-0 shadow-none resize-none pb-12 md:pb-4' />
+                    <Button className='hover:scale-105 hover:brightness-110 transition-all absolute bottom-4 right-4 md:bottom-6 md:right-6' onClick={() => onSend()}>
                         Let's Plan A Trip<Send className='h-4 w-4' />
                     </Button>
                 </div>
             </div>
 
             {/* Suggestion List  */}
-            <div className='flex gap-5'>
+            <div className='flex flex-wrap justify-center gap-3 md:gap-5 px-2'>
                 {suggestions.map((suggestions, index) => (
-                    <div key={index} className='flex items-center gap-2 border rounded-full p-2 cursor-pointer hover:bg-primary hover:text-white'>
+                    <div key={index} className='flex items-center gap-2 border rounded-full p-2 cursor-pointer hover:bg-primary hover:text-white text-sm md:text-base'>
                         {suggestions.icon}
                         <h2>{suggestions.title}</h2>
                     </div>
