@@ -19,13 +19,13 @@ function CreateNewTrip() {
   const [coordinates, setCoordinates] = useState<number[]>([]);
 
   return (
-    <div className='grid grid-cols-1 md:grid-cols-3 gap-5 p-10'>
+    <div className='grid grid-cols-1 md:grid-cols-3 gap-5 p-4 md:p-10'>
       <div>
         {/* 2. Pass the setter to ChatBox so it can update the location when a user selects a place */}
         {/* You will need to update ChatBox to accept this prop */}
         <ChatBox setCoordinates={setCoordinates} />
       </div>
-      <div className='col-span-2 relative'>
+      <div className='col-span-1 md:col-span-2 relative'>
 
         {activeIndex == 0 ?
           <Itinerary /> :

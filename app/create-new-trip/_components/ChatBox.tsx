@@ -282,8 +282,8 @@ function ChatBox({ setCoordinates }: ChatBoxProps) {
       <section>
         <div className="border rounded-2xl p-4 shadow relative">
           <Textarea
-            placeholder="Let's Plan A Trip Together With Itinera 😊"
-            className="w-180 h-28 bg-transparent border-none focus-visible:ring-0 shadow-none resize-none"
+  placeholder="Let's Plan A Trip Together With Itinera 😊"
+  className="w-full h-28 bg-transparent border-none focus-visible:ring-0 shadow-none resize-none"
             onChange={(event) => setUserInput(event.target.value)}
             value={userInput}
             onKeyDown={(e) => {
