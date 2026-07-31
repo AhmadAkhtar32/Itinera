@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +15,8 @@ import {
   ShieldAlert,
   Building2,
   ShoppingBag,
+  Menu,
+  X,
 } from "lucide-react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -30,6 +32,7 @@ const menuOptions = [
 export default function Header() {
   const { isSignedIn } = useUser();
   const path = usePathname();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const currentUser = useQuery(
     api.user.GetCurrentUser,
@@ -42,81 +45,126 @@ export default function Header() {
     currentUser?.role === "collaborator";
 
   return (
-    <header className="flex items-center justify-between px-6 py-4 border-b bg-white">
-      {/* Logo */}
-      <Link href="/" className="flex items-center gap-3">
-        <img
-          src="/logo.svg"
-          alt="Itinera logo"
-          className="w-10 h-10 object-contain"
-        />
-        <h2 className="font-bold text-lg hover:scale-105 transition-all cursor-pointer">
-          Itinera
-        </h2>
-      </Link>
+    <header className="border-b bg-white relative z-50">
+      <div className="flex items-center justify-between px-4 sm:px-6 py-4">
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <img
+            src="/logo.svg"
+            alt="Itinera logo"
+            className="w-8 h-8 sm:w-10 sm:h-10 object-contain"
+          />
+          <h2 className="font-bold text-base sm:text-lg hover:scale-105 transition-all cursor-pointer">
+            Itinera
+          </h2>
+        </Link>
 
-      {/* Navigation */}
-      <nav>
-        <ul className="flex gap-6 items-center">
-          {menuOptions.map((menu) => (
-            <li key={menu.path}>
+        {/* Desktop Navigation */}
+        <nav className="hidden lg:block">
+          <ul className="flex gap-6 items-center">
+            {menuOptions.map((menu) => (
+              <li key={menu.path}>
+                <Link
+                  href={menu.path}
+                  className="font-medium transition-all hover:underline hover:text-primary"
+                >
+                  {menu.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        {/* Desktop Right Side */}
+        <div className="hidden lg:flex gap-4 items-center">
+          {!isSignedIn ? (
+            <SignInButton mode="modal">
+              <Button>Get Started</Button>
+            </SignInButton>
+          ) : (
+            <>
+              {isPartner && (
+                <Link href="/partner/dashboard">
+                  <Button
+                    variant="outline"
+                    className="border-blue-200 text-blue-600 hover:bg-blue-50 flex gap-2"
+                  >
+                    <Building2 size={16} />
+                    Partner Portal
+                  </Button>
+                </Link>
+              )}
+
+              {isAdmin && (
+                <Link href="/admin">
+                  <Button
+                    variant="outline"
+                    className="border-red-200 text-red-600 hover:bg-red-50 flex gap-2"
+                  >
+                    <ShieldAlert size={16} />
+                    Admin Panel
+                  </Button>
+                </Link>
+              )}
+
               <Link
-                href={menu.path}
-                className="font-medium transition-all hover:underline hover:text-primary"
+                href={
+                  path === "/create-new-trip"
+                    ? "/my-trips"
+                    : "/create-new-trip"
+                }
               >
-                {menu.name}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
-
-      {/* Right Side */}
-      <div className="flex gap-4 items-center">
-        {!isSignedIn ? (
-          <SignInButton mode="modal">
-            <Button>Get Started</Button>
-          </SignInButton>
-        ) : (
-          <>
-            {isPartner && (
-              <Link href="/partner/dashboard">
-                <Button
-                  variant="outline"
-                  className="border-blue-200 text-blue-600 hover:bg-blue-50 flex gap-2"
-                >
-                  <Building2 size={16} />
-                  Partner Portal
+                <Button>
+                  {path === "/create-new-trip"
+                    ? "My Trips"
+                    : "Create New Trip"}
                 </Button>
               </Link>
-            )}
 
-            {isAdmin && (
-              <Link href="/admin">
-                <Button
-                  variant="outline"
-                  className="border-red-200 text-red-600 hover:bg-red-50 flex gap-2"
-                >
-                  <ShieldAlert size={16} />
-                  Admin Panel
-                </Button>
-              </Link>
-            )}
+              <UserButton>
+                <UserButton.MenuItems>
+                  <UserButton.Link
+                    label="Dashboard"
+                    labelIcon={<LayoutDashboard size={15} />}
+                    href="/dashboard"
+                  />
+                  <UserButton.Link
+                    label="My Trips"
+                    labelIcon={<Map size={15} />}
+                    href="/my-trips"
+                  />
+                  <UserButton.Link
+                    label="My Bookings"
+                    labelIcon={<ShoppingBag size={15} />}
+                    href="/my-bookings"
+                  />
+                  {isPartner && (
+                    <UserButton.Link
+                      label="Partner Portal"
+                      labelIcon={
+                        <Building2 size={15} className="text-blue-500" />
+                      }
+                      href="/partner/dashboard"
+                    />
+                  )}
+                  {isAdmin && (
+                    <UserButton.Link
+                      label="Admin Portal"
+                      labelIcon={
+                        <ShieldAlert size={15} className="text-red-500" />
+                      }
+                      href="/admin"
+                    />
+                  )}
+                </UserButton.MenuItems>
+              </UserButton>
+            </>
+          )}
+        </div>
 
-            <Link
-              href={
-                path === "/create-new-trip"
-                  ? "/my-trips"
-                  : "/create-new-trip"
-              }
-            >
-              <Button>
-                {path === "/create-new-trip"
-                  ? "My Trips"
-                  : "Create New Trip"}
-              </Button>
-            </Link>
-
+        {/* Mobile Right Side: UserButton (if signed in) + Hamburger */}
+        <div className="flex lg:hidden items-center gap-3">
+          {isSignedIn && (
             <UserButton>
               <UserButton.MenuItems>
                 <UserButton.Link
@@ -124,49 +172,114 @@ export default function Header() {
                   labelIcon={<LayoutDashboard size={15} />}
                   href="/dashboard"
                 />
-
                 <UserButton.Link
                   label="My Trips"
                   labelIcon={<Map size={15} />}
                   href="/my-trips"
                 />
-
                 <UserButton.Link
                   label="My Bookings"
                   labelIcon={<ShoppingBag size={15} />}
                   href="/my-bookings"
                 />
-
                 {isPartner && (
                   <UserButton.Link
                     label="Partner Portal"
                     labelIcon={
-                      <Building2
-                        size={15}
-                        className="text-blue-500"
-                      />
+                      <Building2 size={15} className="text-blue-500" />
                     }
                     href="/partner/dashboard"
                   />
                 )}
-
                 {isAdmin && (
                   <UserButton.Link
                     label="Admin Portal"
                     labelIcon={
-                      <ShieldAlert
-                        size={15}
-                        className="text-red-500"
-                      />
+                      <ShieldAlert size={15} className="text-red-500" />
                     }
                     href="/admin"
                   />
                 )}
               </UserButton.MenuItems>
             </UserButton>
-          </>
-        )}
+          )}
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label="Toggle menu"
+            className="p-2 rounded-md hover:bg-neutral-100"
+          >
+            {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
+        </div>
       </div>
+
+      {/* Mobile Menu Panel */}
+      {mobileOpen && (
+        <div className="lg:hidden border-t bg-white px-4 py-4 space-y-4">
+          <ul className="flex flex-col gap-3">
+            {menuOptions.map((menu) => (
+              <li key={menu.path}>
+                <Link
+                  href={menu.path}
+                  onClick={() => setMobileOpen(false)}
+                  className="block font-medium py-1 transition-all hover:text-primary"
+                >
+                  {menu.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+
+          <div className="flex flex-col gap-3 pt-2 border-t">
+            {!isSignedIn ? (
+              <SignInButton mode="modal">
+                <Button className="w-full">Get Started</Button>
+              </SignInButton>
+            ) : (
+              <>
+                {isPartner && (
+                  <Link href="/partner/dashboard" onClick={() => setMobileOpen(false)}>
+                    <Button
+                      variant="outline"
+                      className="w-full border-blue-200 text-blue-600 hover:bg-blue-50 flex gap-2"
+                    >
+                      <Building2 size={16} />
+                      Partner Portal
+                    </Button>
+                  </Link>
+                )}
+
+                {isAdmin && (
+                  <Link href="/admin" onClick={() => setMobileOpen(false)}>
+                    <Button
+                      variant="outline"
+                      className="w-full border-red-200 text-red-600 hover:bg-red-50 flex gap-2"
+                    >
+                      <ShieldAlert size={16} />
+                      Admin Panel
+                    </Button>
+                  </Link>
+                )}
+
+                <Link
+                  href={
+                    path === "/create-new-trip"
+                      ? "/my-trips"
+                      : "/create-new-trip"
+                  }
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <Button className="w-full">
+                    {path === "/create-new-trip"
+                      ? "My Trips"
+                      : "Create New Trip"}
+                  </Button>
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   );
 }
