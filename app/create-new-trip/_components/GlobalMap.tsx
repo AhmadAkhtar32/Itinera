@@ -12,7 +12,7 @@ function GlobalMap({ coordinates }: { coordinates?: number[] }) {
     const mapRef = useRef<mapboxgl.Map | null>(null);
 
     useEffect(() => {
-        const token = process?.env?.NEXT_PUBLIC_MAPBOX_API_KEY;
+        const token = process.env.NEXT_PUBLIC_MAPBOX_API_KEY;
         if (token) mapboxgl.accessToken = token;
 
         const map = new mapboxgl.Map({
