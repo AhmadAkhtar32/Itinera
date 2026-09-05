@@ -8,8 +8,11 @@ import FloatingChatbot from "@/app/_components/FloatingChatbot";
 import Footer from "./_components/Footer";
 
 export const metadata: Metadata = {
-  title: "Itinera ✈️",
-  description: "AI Trip Architect",
+  title: "Itinera | AI Trip Planner & Itinerary Architect",
+  description: "Plan smarter and travel better. Itinera is an AI-powered trip planner that builds your flights, hotels, and custom travel itineraries in seconds.",
+  verification: {
+    google: "NmytGj1S10OlPjG1z6FseBeSVFAXHfsnIq77yPs-hFA",
+  },
 };
 
 const outfit = Outfit({ subsets: ["latin"] });
