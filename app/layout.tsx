@@ -13,7 +13,7 @@ const outfit = Outfit({ subsets: ["latin"] });
 export const metadata: Metadata = {
   metadataBase: new URL("https://itinera-aa.vercel.app/"), // IMPORTANT: Replace with your actual domain
   title: {
-    default: "Itinera | AI Trip Planner & Itinerary Architect",
+    default: "Itinera AI Trip Planner & Itinerary Architect",
     template: "%s | Itinera - AI Trip Planner",
   },
   description: "Plan smarter and travel better. Itinera is an AI-powered trip planner that builds your flights, hotels, and custom travel itineraries in seconds.",
