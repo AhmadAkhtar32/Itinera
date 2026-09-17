@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   authors: [{ name: "Ahmad" }, { name: "Ahsan" }],
   creator: "Ahmad and Ahsan",
   icons: {
-    icon: "/favicon.png", // Next.js automatically injects the <link rel="icon">
+    icon: "/icon.png", // Next.js automatically injects the <link rel="icon">
     apple: "/apple-icon.png", 
   },
   openGraph: {
