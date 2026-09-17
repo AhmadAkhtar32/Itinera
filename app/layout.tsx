@@ -11,7 +11,7 @@ const outfit = Outfit({ subsets: ["latin"] });
 
 // 1. Comprehensive Metadata Object
 export const metadata: Metadata = {
-  metadataBase: new URL("https://itinera-aa.vercel.app/"), // IMPORTANT: Replace with your actual domain
+  metadataBase: new URL("https://itinera-aa.vercel.app/"),
   title: {
     default: "Itinera AI Trip Planner & Itinerary Architect",
     template: "%s | Itinera - AI Trip Planner",
@@ -26,7 +26,12 @@ export const metadata: Metadata = {
     "vacation planner",
     "custom travel itinerary",
     "smart trip planner",
-    "trip planner by Ahmad and Ahsan", // Added explicitly as requested
+    "trip planner by Ahmad and Ahsan", 
+    "ai trip planner by Ahmad and Ahsan",
+    "app by Ahmad and Ahsan",
+    "Project by Ahmad and Ahsan",
+    "web app by Ahmad and Ahsan",
+    "Ahmad and Ahsan"
   ],
   authors: [{ name: "Ahmad" }, { name: "Ahsan" }],
   creator: "Ahmad and Ahsan",
